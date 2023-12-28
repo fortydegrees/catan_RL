@@ -52,6 +52,8 @@ class EnvWrapper(object):
     def _get_obs(self):
         if self.game.players_need_to_discard:
             player = self.game.players[self.game.players_to_discard[0]]
+        elif self.game.has_to_move_robber:
+            player = self.game.players[self.game.player_to_move_robber]
         elif self.game.must_respond_to_trade:
             player = self.game.players[self.game.proposed_trade["target_player"]]
         else:
@@ -86,7 +88,7 @@ class EnvWrapper(object):
         done = False
         rewards = {player: 0 for player in [PlayerId.Red, PlayerId.Blue]}
         for id, player in self.game.players.items():
-            if player.victory_points >= 10:
+            if player.victory_points >= 15:
                 done = True
                 self.winner = player
         updated_vps = {}
@@ -204,6 +206,14 @@ class EnvWrapper(object):
                 if player.resources[res] <= 0:
                     valid_actions[8][i] = 0.0
             return valid_actions
+        
+        if self.game.has_to_move_robber:
+            player = self.game.players[self.game.player_to_move_robber]
+            valid_tiles = self._get_valid_robber_locations()
+            #print(valid_tiles)
+            valid_actions[0][ActionTypes.MoveRobber] = 1.0
+            valid_actions[3] = valid_tiles
+            return valid_actions
 
         """Action types"""
         if self.game.initial_placement_phase:
@@ -282,7 +292,6 @@ class EnvWrapper(object):
                     valid_actions[6][2] = valid_exch_res
                     valid_actions[7] = valid_exch_res
         #exchange resources
-        #TODO: fix
         valid_resources_to_exchange = self._get_valid_exchange_resources(player)
         valid_resources_to_receive = self._get_valid_exchange_receive_resources()
         #TEST PRINT
@@ -293,13 +302,12 @@ class EnvWrapper(object):
             valid_actions[7] = valid_resources_to_receive
         #move robber
         if self.game.can_move_robber:
-            #TODO: friendly robber
             valid_tiles = self._get_valid_robber_locations()
             #print(valid_tiles)
             valid_actions[0][ActionTypes.MoveRobber] = 1.0
             valid_actions[3] = valid_tiles
         #propose trade
-        total_res = sum(resources.values())
+        #total_res = sum(resources.values())
         # if self.max_proposed_trades_per_turn is None:
         #     if total_res > 0:
         #         valid_actions[0][ActionTypes.ProposeTrade] = 1.0
@@ -613,9 +621,9 @@ class EnvWrapper(object):
                 max_resources.append(max_res_count)
 
         """victory points"""
-        victory_points = np.zeros((10,))
+        victory_points = np.zeros((15,))
         vps = target_player.victory_points
-        if vps < 10:
+        if vps < 15:
             victory_points[vps] = 1.0
         else:
             victory_points[-1] = 1.0

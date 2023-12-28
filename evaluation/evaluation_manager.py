@@ -136,6 +136,8 @@ class EvaluationManager(object):
     def _get_players_turn(self, env):
         if env.game.players_need_to_discard:
             player_id = env.game.players_to_discard[0]
+        elif env.game.has_to_move_robber:
+            player_id = env.game.player_to_move_robber
         elif env.game.must_respond_to_trade:
             player_id = env.game.proposed_trade["target_player"]
         else:

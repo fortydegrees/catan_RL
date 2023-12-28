@@ -96,6 +96,9 @@ class Game(object):
         self.just_moved_robber = False
         self.players_need_to_discard = False
         self.players_to_discard = []
+        self.has_to_move_robber = False
+        self.player_to_move_robber = None
+
 
         self.die_1 = None
         self.die_2 = None
@@ -130,6 +133,9 @@ class Game(object):
                 if sum(self.players[p_id].resources.values()) > 9:
                     self.players_need_to_discard = True
                     self.players_to_discard.append(p_id)
+            #self.has_to_move_robber = True
+            #TODO: get current player
+            #self.player_to_move_robber = 1
             return roll_value
 
         tiles_hit = self.board.value_to_tiles[roll_value]
@@ -249,6 +255,9 @@ class Game(object):
         if check_player and self.policies is not None:
             if self.players_need_to_discard:
                 curr_player = self.players[self.players_to_discard[0]].id
+            #TODO: do we need this?
+            elif self.has_to_move_robber:
+                curr_player = self.players[self.players_go]
             elif self.must_respond_to_trade:
                 curr_player = self.players[self.proposed_trade["target_player"]].id
             else:
@@ -285,6 +294,12 @@ class Game(object):
         else:
             if action["type"] == ActionTypes.DiscardResource:
                 return False, "You cannot discard resources at the moment!"
+            
+        if self.has_to_move_robber:
+            if action["type"] != ActionTypes.MoveRobber:
+                return False, "A 7 was rolled, you have to move the robber"
+            else:
+                return True, None
 
         if action["type"] == ActionTypes.PlaceSettlement:
             if self.must_respond_to_trade:
@@ -476,6 +491,8 @@ class Game(object):
                 return False, "Must respond to proposed trade."
             if self.must_use_development_card_ability:
                 return False, "You need to play out your development card ability first."
+            if self.has_to_move_robber:
+                return True, None
             if self.can_move_robber:
                 return True, None
             return False
@@ -598,10 +615,14 @@ class Game(object):
             self.dice_rolled_this_turn = True
             if roll_value == 7:
                 self.can_move_robber = True
+                self.has_to_move_robber = True
+                self.player_to_move_robber = player.id
             if return_message:
                 message = {"player_id": player.id, "text": "Rolled the dice (" + str(roll_value) + ")."}
         elif action["type"] == ActionTypes.EndTurn:
             self.can_move_robber = False
+            self.has_to_move_robber = False
+            self.player_to_move_robber = None
             self.dice_rolled_this_turn = False
             self.played_development_card_this_turn = False
             self.update_players_go()
@@ -615,6 +636,8 @@ class Game(object):
             #print(f"{player.id} just moved robber")
             self.board.move_robber(self.board.tiles[action["tile"]])
             self.can_move_robber = False
+            self.has_to_move_robber = False
+            self.player_to_move_robber = None
             tile_corner_values = self.board.tiles[action["tile"]].corners.values()
             player_to_steal_from = False
             for value in tile_corner_values:
@@ -1011,6 +1034,9 @@ class Game(object):
         state["players_need_to_discard"] = self.players_need_to_discard
         state["players_to_discard"] = copy.copy(self.players_to_discard)
 
+        state["has_to_move_robber"] = self.has_to_move_robber
+        state["player_to_move_robber"] = self.player_to_move_robber
+
         state["tile_info"] = []
         for tile in self.board.tiles:
             state["tile_info"].append(
@@ -1090,6 +1116,9 @@ class Game(object):
 
         self.players_to_discard = state["players_to_discard"]
         self.players_need_to_discard = state["players_need_to_discard"]
+
+        self.has_to_move_robber = state["has_to_move_robber"]
+        self.player_to_move_robber = state["player_to_move_robber"]
 
         self.board.value_to_tiles = {}
 

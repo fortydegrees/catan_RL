@@ -48,17 +48,20 @@ def _worker(
 
                 if randomise_opponent_policies_each_episode == False:
                     policies = [policy_state_dicts[player_id],
-                                policy_state_dicts[other_player_ids[0]],
-                                policy_state_dicts[other_player_ids[1]],
-                                policy_state_dicts[other_player_ids[2]]]
+                                policy_state_dicts[other_player_ids[0]]
+                                #,
+                                #policy_state_dicts[other_player_ids[1]],
+                                #policy_state_dicts[other_player_ids[2]]
+                                ]
                     evaluation_manager._update_policies(policies)
 
                 for ep in range(num_episodes):
 
                     if randomise_opponent_policies_each_episode:
-                        policies = [policy_state_dicts[player_id]] + [random.choice(list(policy_state_dicts.values())),
-                                                                      random.choice(list(policy_state_dicts.values())),
-                                                                      random.choice(list(policy_state_dicts.values()))]
+                        policies = [policy_state_dicts[player_id]] + [random.choice(list(policy_state_dicts.values()))
+                                                                      #,random.choice(list(policy_state_dicts.values())),
+                                                                      #random.choice(list(policy_state_dicts.values()))
+                                                                      ]
                         evaluation_manager._update_policies(policies)
                     if evaluation_manager.detailed_logging:
                         winner, victory_points, total_steps, policy_decisions, entropy, action_types, type_probs, values, detailed_action_out = evaluation_manager.run_evaluation_game()

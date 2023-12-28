@@ -19,8 +19,8 @@ N_PLAYERS = 2
 """default values"""
 tile_in_dim = 60
 tile_model_dim = 64
-curr_player_in_dim = 152
-other_player_in_dim = 159
+curr_player_in_dim = 157
+other_player_in_dim = 164
 dev_card_embed_dim = 16
 tile_model_num_heads = 4
 observation_out_dim = 512
