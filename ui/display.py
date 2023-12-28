@@ -1,16 +1,18 @@
-import pygame
+from tkinter import messagebox, Tk
+
 import os
 import sys
 import copy
 import numpy as np
 import torch
 from scipy.spatial.distance import pdist, squareform
-from tkinter import messagebox, Tk
+
 
 from game.enums import Terrain, Resource, PlayerId, BuildingType, ActionTypes, DevelopmentCard
 from game.enums import TILE_NEIGHBOURS, HARBOUR_CORNER_AND_EDGES
 
 from ui.sftext.sftext import SFText
+import pygame
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'sftext/'))
 
@@ -160,19 +162,15 @@ class Display(object):
                                                          (self.token_dim, self.token_dim)) for key, val in
                              self.harbour_image_paths.items()}
         self.settlement_image_paths = {
-            PlayerId.White: "buildings/settlement_white.png",
             PlayerId.Blue: "buildings/settlement_blue.png",
             PlayerId.Red: "buildings/settlement_red.png",
-            PlayerId.Orange: "buildings/settlement_orange.png"
         }
         self.settlement_images = {key: pygame.transform.scale(pygame.image.load(os.path.join(*self.image_path, val)),
                                                          (self.building_width, self.building_height)) for key, val in
                              self.settlement_image_paths.items()}
         self.city_image_paths = {
-            PlayerId.White: "buildings/city_white.png",
             PlayerId.Blue: "buildings/city_blue.png",
             PlayerId.Red: "buildings/city_red.png",
-            PlayerId.Orange: "buildings/city_orange.png"
         }
         self.city_images = {key: pygame.transform.scale(pygame.image.load(os.path.join(*self.image_path, val)),
                             (self.building_width, self.building_height)) for key, val in self.city_image_paths.items()}
@@ -228,12 +226,11 @@ class Display(object):
         self.construct_outer_board_polygon()
         self.screen = pygame.display.set_mode((screen_width, screen_height))
         pygame.display.set_caption("Settlers of Catan RL environment")
+
         self.BACKGROUND_COLOUR = (25, 105, 158)
         self.road_colours = {
-            PlayerId.White: (255, 255, 255),
             PlayerId.Red: (255, 0, 0),
             PlayerId.Blue: (0, 0, 255),
-            PlayerId.Orange: (255, 153, 51)
         }
         self.ROAD_WIDTH = 15
         self.CORNER_RADIUS = 5
@@ -278,10 +275,8 @@ class Display(object):
         semi_circle_img_width = int(235 * semi_circle_scale)
         semi_circle_img_height = int(400 * semi_circle_scale)
         self.trading_semi_circle_image_paths = {
-            PlayerId.White: "menu/semicircle_white.png",
             PlayerId.Red: "menu/semicircle_red.png",
             PlayerId.Blue: "menu/semicircle_blue.png",
-            PlayerId.Orange: "menu/semicircle_orange.png"
         }
         self.trading_semi_circle_images = {key: pygame.transform.scale(pygame.image.load(os.path.join(*self.image_path, val)),
                                           (semi_circle_img_width, semi_circle_img_height)) for key, val in
@@ -320,8 +315,6 @@ class Display(object):
         self.player_box_width = 37
         self.player_box_height = 37
         self.player_boxes = {
-            PlayerId.White: [1390, 646, self.player_box_width, self.player_box_height],
-            PlayerId.Orange: [1435, 646, self.player_box_width, self.player_box_height],
             PlayerId.Red: [1480, 646, self.player_box_width, self.player_box_height],
             PlayerId.Blue: [1525, 646, self.player_box_width, self.player_box_height]
         }
@@ -619,7 +612,7 @@ class Display(object):
             self.screen.blit(pygame.transform.flip(
                 self.trading_semi_circle_images[self.game.proposed_trade["target_player"]], True, False), (1493, 708))
 
-        for player_id in [PlayerId.White, PlayerId.Red, PlayerId.Blue, PlayerId.Orange]:
+        for player_id in [PlayerId.Red, PlayerId.Blue]:
             pygame.draw.rect(self.screen, self.road_colours[player_id], self.player_boxes[player_id])
             if self.game.must_respond_to_trade == False and len(self.active_other_player) > 0:
                 if self.active_other_player[0] == player_id:
@@ -743,7 +736,7 @@ class Display(object):
 
     def initialise_AI(self):
         self.curr_hidden_states = {}
-        for player_id in [PlayerId.White, PlayerId.Blue, PlayerId.Red, PlayerId.Orange]:
+        for player_id in [PlayerId.Blue, PlayerId.Red]:
             if isinstance(self.policies[player_id], str):
                 pass
             else:
@@ -791,14 +784,10 @@ class Display(object):
             )
             self.update_game_log(info["log"])
             if done:
-                if players_go == PlayerId.Orange:
-                    winner = "Orange"
-                elif players_go == PlayerId.Red:
+                if players_go == PlayerId.Red:
                     winner = "Red"
                 elif players_go == PlayerId.Blue:
                     winner = "Blue"
-                elif players_go == PlayerId.White:
-                    winner = "White"
                 final_message = "Game over. {} player wins!".format(winner)
                 messagebox.showinfo('Game over', final_message)
             return done
@@ -1134,7 +1123,7 @@ class Display(object):
                         else:
                             messagebox.showinfo('Error', error)
             elif mouse_pos[0] > 1390 and mouse_pos[0] < 1562 and mouse_pos[1] > 646 and mouse_pos[1] < 683:
-                for player_id in [PlayerId.White, PlayerId.Red, PlayerId.Orange, PlayerId.Blue]:
+                for player_id in [PlayerId.Red, PlayerId.Blue]:
                     box = self.player_boxes[player_id]
                     if mouse_pos[0] > box[0] and mouse_pos[0] < (box[0] + box[2]) and mouse_pos[1] > box[1] and \
                         mouse_pos[1] < (box[1] + box[3]):
