@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/RL/robust_train.py",
+            "args": [
+                "--num-processes=1",
+                "--num-envs-per-process=1",
+                "--num-mini-batch=8"
+            ],
+            "console": "integratedTerminal",
+            "env": {
+                "OBJC_DISABLE_INITIALIZE_FORK_SAFETY": "YES"
+            }
+        }
+    ]
+}
