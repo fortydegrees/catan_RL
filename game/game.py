@@ -511,6 +511,8 @@ class Game(object):
                 return False, "Must respond to proposed trade."
             if self.initial_placement_phase:
                 return False, "Still in initial placement phase!"
+            elif self.has_to_move_robber:
+                return False, "Have to move the robber!"
             elif self.dice_rolled_this_turn == False:
                 return False, "You cannot end your turn before rolling the dice!"
             elif self.must_use_development_card_ability:
