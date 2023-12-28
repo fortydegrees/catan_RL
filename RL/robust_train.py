@@ -21,11 +21,11 @@ from RL.ppo.ppo import PPO
 from RL.ppo.vec_evaluation import SubProcEvaluationManager
 from RL.ppo.evaluation_manager import make_evaluation_manager
 
-update_num, rollout_manager, evaluation_manager = None, None, None
+update_num, rollout_manager, evaluation_manager, curr_entropy_coef, curr_reward_weight = None, None, None, None, None
 DEBUG = False
 
 def main():
-    global update_num, rollout_manager, evaluation_manager
+    global update_num, rollout_manager, evaluation_manager, curr_entropy_coef, curr_reward_weight
 
     args = get_args()
 
@@ -142,7 +142,7 @@ def main():
 
         if update_num % args.eval_every == 0 and update_num > 0:
             log, print_summary = run_evaluation_protocol(evaluation_manager, central_policy, earlier_policies,
-                                                         random_policy, args, update_num, curr_entropy_coef, curr_reward_weight)
+                                                         random_policy, args, update_num)
             eval_logs.append(log)
 
             print(print_summary)

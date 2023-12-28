@@ -38,7 +38,7 @@ def run_evaluation_protocol(evaluation_manager, central_policy, earlier_policies
         results = list(zip(*results))
 
         winners = np.concatenate(results[0])
-        game_lengths = np.concatenate(results[1])
+        game_lengths = np.concatenate(results[1])   
         victory_points = np.concatenate(results[2])
         policy_steps = np.concatenate(results[3])
 
