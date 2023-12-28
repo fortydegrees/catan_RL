@@ -412,6 +412,12 @@ class Game(object):
             target_resource = action["desired_resource"]
             trading_resource = action["trading_resource"]
 
+            #TEST PRINT
+            print(action)
+            print(f"trading_resource: {trading_resource}, target: {target_resource}")
+            print(player.resources)
+            print(f"trading {player.resources[trading_resource]} for target resource: {player.resources[target_resource]}")
+
             if action.get("harbour", -1) != -1:
                 res = action["harbour"]
                 harbour = player.harbours.get(res, -1)

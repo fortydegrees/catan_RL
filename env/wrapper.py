@@ -102,6 +102,7 @@ class EnvWrapper(object):
                     rewards[player_id] -= 0.3
                 if action[0] == ActionTypes.UpgradeToCity:
                     rewards[player_id] += 2.5
+                #TODO: penalty for early exchange?
 
                 rewards[player_id] *= self.reward_annealing_factor
         self.curr_vps = updated_vps
@@ -129,10 +130,10 @@ class EnvWrapper(object):
         elif action_type == ActionTypes.MoveRobber:
             translated_action["tile"] = action[3]
         elif action_type == ActionTypes.StealResource:
-            target_player = action[6] #in form next, next-next.
+            target_player = action[5] #in form next, next-next.
             #hack. always makes it 'next' player
             target_player = 0
-            print(target_player, players_go)
+            #print(target_player, players_go)
             #0, 1 is good. '1 stealing from 2'
             #3, 1 is bad. don't get to 'steal from X'
             #1,1 is bad
@@ -281,13 +282,15 @@ class EnvWrapper(object):
                     valid_actions[6][2] = valid_exch_res
                     valid_actions[7] = valid_exch_res
         #exchange resources
-                    #TODO: fix
-        # valid_resources_to_exchange = self._get_valid_exchange_resources(player)
-        # valid_resources_to_receive = self._get_valid_exchange_receive_resources()
-        # if sum(valid_resources_to_exchange) > 0 and sum(valid_resources_to_receive) > 0:
-        #     valid_actions[0][ActionTypes.ExchangeResource] = 1.0
-        #     valid_actions[6][0] = valid_resources_to_exchange
-        #     valid_actions[7] = valid_resources_to_receive
+        #TODO: fix
+        valid_resources_to_exchange = self._get_valid_exchange_resources(player)
+        valid_resources_to_receive = self._get_valid_exchange_receive_resources()
+        #TEST PRINT
+        #print(f"valid resources to exchange/receive: {valid_resources_to_exchange} - {valid_resources_to_receive}")
+        if sum(valid_resources_to_exchange) > 0 and sum(valid_resources_to_receive) > 0:
+            valid_actions[0][ActionTypes.ExchangeResource] = 1.0
+            valid_actions[6][0] = valid_resources_to_exchange
+            valid_actions[7] = valid_resources_to_receive
         #move robber
         if self.game.can_move_robber:
             #TODO: friendly robber
@@ -415,6 +418,7 @@ class EnvWrapper(object):
         valid_resources = np.zeros((len(Resource)-1,))
         res_map = {Resource.Brick: 0, Resource.Wood: 1, Resource.Ore: 2, Resource.Sheep: 3, Resource.Wheat: 4}
         resources = player.resources
+        #print(resources)
         for harbour in player.harbours.values():
             if harbour.resource is None:
                 for i, res in enumerate([Resource.Brick, Resource.Wood, Resource.Ore, Resource.Sheep, Resource.Wheat]):

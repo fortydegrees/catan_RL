@@ -39,3 +39,6 @@ To train an agent from scratch (which will take a long time - the pretrained age
 `python RL/robust_train.py`
 
 Note that the arguments to configure the experiment can be found in RL/ppo/arguments.py.
+
+For local running on my mac:
+`python3 RL/robust_train.py --num-processes=1 --num-envs-per-process=1 --num-mini-batch=8`
