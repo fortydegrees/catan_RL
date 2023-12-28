@@ -256,8 +256,8 @@ class Game(object):
             if self.players_need_to_discard:
                 curr_player = self.players[self.players_to_discard[0]].id
             #TODO: do we need this?
-            elif self.has_to_move_robber:
-                curr_player = self.players[self.players_go]
+            # elif self.has_to_move_robber:
+            #     curr_player = self.players[self.players_go]
             elif self.must_respond_to_trade:
                 curr_player = self.players[self.proposed_trade["target_player"]].id
             else:
