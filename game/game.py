@@ -413,10 +413,10 @@ class Game(object):
             trading_resource = action["trading_resource"]
 
             #TEST PRINT
-            print(action)
-            print(f"trading_resource: {trading_resource}, target: {target_resource}")
-            print(player.resources)
-            print(f"trading {player.resources[trading_resource]} for target resource: {player.resources[target_resource]}")
+            #print(action)
+            #print(f"trading_resource: {trading_resource}, target: {target_resource}")
+            #print(player.resources)
+            #print(f"trading {player.resources[trading_resource]} for target resource: {player.resources[target_resource]}")
             #player.resources[target_resource] always seems to be 0..
 
             if action.get("harbour", -1) != -1:
