@@ -301,14 +301,10 @@ class Game(object):
                     return False, "You must move the robber to a different tile"
                 #ADDED: friendly robber.
                 robber_tile = action["tile"]
-                for key, val in robber_tile.corners.items():
+                for key, val in self.board.tiles[robber_tile].corners.items():
                     if val is not None and val.building is not None:
                         owner = val.building.owner
-                        print(owner)
-                        print(self.game.players)
-                        print(self.game.players[owner])
-                        print(self.game.players[owner].victory_points)
-                        if self.game.players[owner].victory_points <= 2:
+                        if self.players[owner].victory_points <= 2:
                             return False, "Friendly robber! Can't place robber on a player with 2 VPs"
                 return True, None
         elif action["type"] == ActionTypes.MoveRobber:
