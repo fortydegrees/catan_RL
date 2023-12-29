@@ -484,6 +484,7 @@ class Game(object):
         #     else:
         #         return False, "No trade to respond to."
         elif action["type"] == ActionTypes.MoveRobber:
+            print('yoyo')
             if self.must_respond_to_trade:
                 return False, "Must respond to proposed trade."
             if self.must_use_development_card_ability:
