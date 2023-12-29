@@ -296,7 +296,7 @@ class Game(object):
             if action["type"] != ActionTypes.MoveRobber:
                 return False, "A 7 was rolled, you have to move the robber"
             else:
-                print(action["tile"], self.board.robber_tile.id)
+                #ADDED: make sure it's a different tile. seems to work.
                 if action["tile"] == self.board.robber_tile.id:
                     return False, "You must move the robber to a different tile"
                 return True, None
@@ -305,12 +305,21 @@ class Game(object):
                 return False, "Must respond to proposed trade."
             if self.must_use_development_card_ability:
                 return False, "You need to play out your development card ability first."
-            #TODO: make sure it's a different tile. untested.
-                #robber_tile = self.board.robber_tile <-- current tile
-                #how to get new tile/proposed tile?
-            print(action["tile"], self.board.robber_tile.id)
+            #ADDED: make sure it's a different tile. seems to work.
             if action["tile"] == self.board.robber_tile.id:
                 return False, "You must move the robber to a different tile"
+            #ADDED: friendly robber.
+
+            robber_tile = action["tile"]
+            for key, val in robber_tile.corners.items():
+                if val is not None and val.building is not None:
+                    owner = val.building.owner
+                    print(owner)
+                    print(self.game.players)
+                    print(self.game.players[owner])
+                    print(self.game.players[owner].victory_points)
+                    if self.game.players[owner].victory_points <= 2:
+                        return False, "Friendly robber! Can't place robber on a player with 2 VPs"
             if self.has_to_move_robber:
                 return True, None
             if self.can_move_robber:
