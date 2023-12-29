@@ -296,7 +296,26 @@ class Game(object):
             if action["type"] != ActionTypes.MoveRobber:
                 return False, "A 7 was rolled, you have to move the robber"
             else:
+                print(action["tile"], self.board.robber_tile.id)
+                if action["tile"] == self.board.robber_tile.id:
+                    return False, "You must move the robber to a different tile"
                 return True, None
+        elif action["type"] == ActionTypes.MoveRobber:
+            if self.must_respond_to_trade:
+                return False, "Must respond to proposed trade."
+            if self.must_use_development_card_ability:
+                return False, "You need to play out your development card ability first."
+            #TODO: make sure it's a different tile. untested.
+                #robber_tile = self.board.robber_tile <-- current tile
+                #how to get new tile/proposed tile?
+            print(action["tile"], self.board.robber_tile.id)
+            if action["tile"] == self.board.robber_tile.id:
+                return False, "You must move the robber to a different tile"
+            if self.has_to_move_robber:
+                return True, None
+            if self.can_move_robber:
+                return True, None
+            return False
 
         if action["type"] == ActionTypes.PlaceSettlement:
             if self.must_respond_to_trade:
@@ -483,24 +502,7 @@ class Game(object):
         #             return True, None
         #     else:
         #         return False, "No trade to respond to."
-        elif action["type"] == ActionTypes.MoveRobber:
-            print('yoyo')
-            if self.must_respond_to_trade:
-                return False, "Must respond to proposed trade."
-            if self.must_use_development_card_ability:
-                return False, "You need to play out your development card ability first."
-            #TODO: make sure it's a different tile. untested.
-                #robber_tile = self.board.robber_tile <-- current tile
-                #how to get new tile/proposed tile?
-            print(action["tile"], self.board.robber_tile.id)
-            if action["tile"] == self.board.robber_tile.id:
-                return False, "You must move the robber to a different tile"
 
-            if self.has_to_move_robber:
-                return True, None
-            if self.can_move_robber:
-                return True, None
-            return False
         elif action["type"] == ActionTypes.RollDice:
             if self.must_respond_to_trade:
                 return False, "Must respond to proposed trade."
