@@ -1,7 +1,8 @@
 import numpy as np
 import torch
 import torch.nn as nn
-
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
 from RL.models.utils import ValueFunctionNormaliser
 
 def init(module, weight_init, bias_init, gain=1):
@@ -176,6 +177,12 @@ class SettlersAgentPolicy(nn.Module):
                     obs[key][k] = torch.tensor(obs[key][k], dtype=torch.long, device=self.dummy_param.device)
             else:
                 obs[key] = [torch.tensor(obs[key], dtype=torch.long, device=self.dummy_param.device)]
+        #added. gets rid of warning UserWarning: Creating a tensor from a list of numpy.ndarrays is extremely slow. Please consider converting the list to a single numpy.ndarray with numpy.array() before converting to a tensor.
+        #not sure what effect it has though..
+        #can also just suppress warning : import warnings, warnings.filterwarnings("ignore", category=UserWarning)
+            #combined_array = np.array(obs["tile_representations"])
+            #obs["tile_representations"] = torch.tensor(combined_array, dtype=torch.float32,
+                                                   #device=self.dummy_param.device)
         obs["tile_representations"] = torch.tensor(obs["tile_representations"], dtype=torch.float32,
                                                    device=self.dummy_param.device)
         if len(obs["tile_representations"].shape) == 2:
