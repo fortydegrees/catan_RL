@@ -46,7 +46,7 @@ def get_args():
         '--seed', type=int, default=0
     )
     parser.add_argument(
-        '--num-processes', type=int, default=128
+        '--num-processes', type=int, default=4
     )
     parser.add_argument(
         '--num-envs-per-process', type=int, default=5
