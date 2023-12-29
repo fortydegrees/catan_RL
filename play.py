@@ -61,4 +61,4 @@ if __name__ == "__main__":
         max_trades = 0
     env = EnvWrapper(policies=policies, max_proposed_trades_per_turn=max_trades)
     env.reset()
-    display = Display(env=env, game=env.game, interactive=True, policies=policies, test=False, debug_mode=False)
+    display = Display(env=env, game=env.game, interactive=True, policies=policies, test=False, debug_mode=True)
