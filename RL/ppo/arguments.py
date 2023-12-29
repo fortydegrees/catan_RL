@@ -52,7 +52,7 @@ def get_args():
         '--num-envs-per-process', type=int, default=5
     )
     parser.add_argument(
-        '--num-steps', type=int, default=200
+        '--num-steps', type=int, default=600
     )
     parser.add_argument(
         '--truncated-seq-len', type=int, default=10

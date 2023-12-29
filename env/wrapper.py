@@ -335,7 +335,6 @@ class EnvWrapper(object):
     def _get_valid_robber_locations(self):
         valid_tiles = np.zeros((N_TILES,))
         curr_player = self.game.players_go
-
         for i, tile in enumerate(self.game.board.tiles):
             #TODO: friendly robber
             valid = False
@@ -343,6 +342,9 @@ class EnvWrapper(object):
                 if tile.corners[key].building is not None and tile.corners[key].building != curr_player:
                     valid = True
                     break
+            #valid tile can't be tile it's currently on. should work but untested.
+            if (tile.contains_robber):
+                valid = False
             if valid:
                 valid_tiles[i] = 1.0
         return valid_tiles

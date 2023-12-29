@@ -255,9 +255,6 @@ class Game(object):
         if check_player and self.policies is not None:
             if self.players_need_to_discard:
                 curr_player = self.players[self.players_to_discard[0]].id
-            #TODO: do we need this?
-            # elif self.has_to_move_robber:
-            #     curr_player = self.players[self.players_go]
             elif self.must_respond_to_trade:
                 curr_player = self.players[self.proposed_trade["target_player"]].id
             else:
@@ -276,7 +273,7 @@ class Game(object):
                 curr_player = self.players[self.players_to_discard[0]]
                 total_current_res = sum(curr_player.resources.values())
                 if total_current_res <= 9:
-                    raise ValueError("Player is being told to discard when they have less than 9 or less resources!")
+                    raise ValueError("Player is being told to discard when they have less than 9 resources!")
                 else:
                     if isinstance(action["resources"], list):
                         pass
@@ -491,6 +488,13 @@ class Game(object):
                 return False, "Must respond to proposed trade."
             if self.must_use_development_card_ability:
                 return False, "You need to play out your development card ability first."
+            #TODO: make sure it's a different tile. untested.
+                #robber_tile = self.board.robber_tile <-- current tile
+                #how to get new tile/proposed tile?
+            #print(action["tile"], self.board.robber_tile.id)
+            if action["tile"] == self.board.robber_tile.id:
+                return False, "You must move the robber to a different tile"
+
             if self.has_to_move_robber:
                 return True, None
             if self.can_move_robber:
@@ -801,6 +805,10 @@ class Game(object):
         #         self.proposed_trade = None
         #     else:
         #         self.proposed_trade = None
+        #TODO: proper discarding, e.g. not just less than 9.
+                #could add number to players_to_discard array for the number of cards they should be left with (numCardsLeft).
+                #e.g. if they have 10 cards, make it 5. then just do this: if sum(player_discarding.resources.values()) <= 5 (numCardsLeft):
+        #11 cards = discard 5. so round down: 11 / 2 
         elif action["type"] == ActionTypes.DiscardResource:
             player_discarding = self.players[self.players_to_discard[0]]
             if isinstance(action["resources"], list):
