@@ -12,6 +12,8 @@ from game.utils import DFS
 
 from ui.display import Display
 
+import math
+
 class Game(object):
     def __init__(self, board_config = {}, interactive=False, debug_mode=False, policies=None):
         self.board = Board(**board_config)
@@ -96,6 +98,7 @@ class Game(object):
         self.just_moved_robber = False
         self.players_need_to_discard = False
         self.players_to_discard = []
+        self.num_to_discard = {}
         self.has_to_move_robber = False
         self.player_to_move_robber = None
 
@@ -133,9 +136,8 @@ class Game(object):
                 if sum(self.players[p_id].resources.values()) > 9:
                     self.players_need_to_discard = True
                     self.players_to_discard.append(p_id)
-            #self.has_to_move_robber = True
-            #TODO: get current player
-            #self.player_to_move_robber = 1
+                    num_cards = sum(self.players[p_id].resources.values())
+                    self.num_to_discard[p_id] = [math.floor(num_cards / 2), num_cards - math.floor(num_cards / 2)]
             return roll_value
 
         tiles_hit = self.board.value_to_tiles[roll_value]
@@ -268,26 +270,27 @@ class Game(object):
 
         if self.players_need_to_discard:
             if action["type"] != ActionTypes.DiscardResource:
-                return False, "A 7 was rolled and you have more than 9 resources. You must discard resources until you only have 9 resources."
+                return False, "A 7 was rolled and you have more than 9 resources. You must discard resources"
             else:
                 curr_player = self.players[self.players_to_discard[0]]
                 total_current_res = sum(curr_player.resources.values())
-                if total_current_res <= 9:
-                    raise ValueError("Player is being told to discard when they have less than 9 resources!")
+                # if total_current_res <= 9:
+                #     raise ValueError("Player is being told to discard when they have less than 9 resources!")
+                # else:
+                if isinstance(action["resources"], list):
+                    pass
                 else:
-                    if isinstance(action["resources"], list):
-                        pass
+                    action["resource"] = [action["resources"]]
+                    
+                if len(action["resources"]) > self.num_to_discard[curr_player.id][0]:
+                    return False, "You are trying to discard too many resources!"
+                curr_res = copy.copy(curr_player.resources)
+                for res in action["resources"]:
+                    if curr_res[res] <= 0:
+                        return False, "You do not have these resources to discard!"
                     else:
-                        action["resource"] = [action["resources"]]
-                    if total_current_res - len(action["resources"]) < 9:
-                        return False, "You are trying to discard too many resources!"
-                    curr_res = copy.copy(curr_player.resources)
-                    for res in action["resources"]:
-                        if curr_res[res] <= 0:
-                            return False, "You do not have these resources to discard!"
-                        else:
-                            curr_res[res] -= 1
-                    return True, None
+                        curr_res[res] -= 1
+                return True, None
         else:
             if action["type"] == ActionTypes.DiscardResource:
                 return False, "You cannot discard resources at the moment!"
@@ -820,6 +823,7 @@ class Game(object):
         #         self.proposed_trade = None
         #     else:
         #         self.proposed_trade = None
+                
         #TODO: proper discarding, e.g. not just less than 9.
                 #could add number to players_to_discard array for the number of cards they should be left with (numCardsLeft).
                 #e.g. if they have 10 cards, make it 5. then just do this: if sum(player_discarding.resources.values()) <= 5 (numCardsLeft):
@@ -836,8 +840,9 @@ class Game(object):
                 player_discarding.resources[res] -= 1
                 self.resource_bank[res] += 1
             self.update_player_resource_estimates(res_dict, player_discarding.id)
-            if sum(player_discarding.resources.values()) <= 9:
+            if sum(player_discarding.resources.values()) <= self.num_to_discard[player_discarding.id][1]:
                 self.players_to_discard.remove(player_discarding.id)
+                del self.num_to_discard[player_discarding.id]
                 if len(self.players_to_discard) == 0:
                     self.players_need_to_discard = False
             if return_message:
