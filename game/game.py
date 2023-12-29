@@ -491,7 +491,7 @@ class Game(object):
             #TODO: make sure it's a different tile. untested.
                 #robber_tile = self.board.robber_tile <-- current tile
                 #how to get new tile/proposed tile?
-            #print(action["tile"], self.board.robber_tile.id)
+            print(action["tile"], self.board.robber_tile.id)
             if action["tile"] == self.board.robber_tile.id:
                 return False, "You must move the robber to a different tile"
 
