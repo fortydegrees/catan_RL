@@ -294,8 +294,7 @@ class EnvWrapper(object):
         #exchange resources
         valid_resources_to_exchange = self._get_valid_exchange_resources(player)
         valid_resources_to_receive = self._get_valid_exchange_receive_resources()
-        #TEST PRINT
-        #print(f"valid resources to exchange/receive: {valid_resources_to_exchange} - {valid_resources_to_receive}")
+      
         if sum(valid_resources_to_exchange) > 0 and sum(valid_resources_to_receive) > 0:
             valid_actions[0][ActionTypes.ExchangeResource] = 1.0
             valid_actions[6][0] = valid_resources_to_exchange
@@ -306,6 +305,7 @@ class EnvWrapper(object):
             #print(valid_tiles)
             valid_actions[0][ActionTypes.MoveRobber] = 1.0
             valid_actions[3] = valid_tiles
+            
         #propose trade
         #total_res = sum(resources.values())
         # if self.max_proposed_trades_per_turn is None:
@@ -335,14 +335,45 @@ class EnvWrapper(object):
     def _get_valid_robber_locations(self):
         valid_tiles = np.zeros((N_TILES,))
         curr_player = self.game.players_go
+        #added. hacky awful way of getting other player as i don't quite understand all the structures
+        for player_id, player in self.game.players.items():
+            if player_id.value != curr_player:
+                other_player = player.id
+                break
+        opponent_vps = self.game.players[other_player].victory_points
+        curr_player_vps = self.game.players[curr_player].victory_points
+
         for i, tile in enumerate(self.game.board.tiles):
-            #TODO: friendly robber
-            valid = False
-            for key in tile.corners.keys():
-                if tile.corners[key].building is not None and tile.corners[key].building != curr_player:
-                    valid = True
-                    break
-            #valid tile can't be tile it's currently on. should work but untested.
+            #added friendly robber
+            #if VPs == 2, any tile that's not got a building on is valid
+            if opponent_vps <= 2:
+                valid = True
+                for key in tile.corners.keys():
+                    #don't place on any buildings
+                    if tile.corners[key].building is not None:
+                        valid = False
+                        break
+
+            #if opponent has > 2 VPs, only valid tiles are tiles with their buildings on
+                    #but this actually might also catch tiles with our buildings on if we have 2 VPs
+            else:
+                valid = False
+                for key in tile.corners.keys():
+                    #get all tiles that our opponent is on
+                    if tile.corners[key].building is not None and tile.corners[key].building != curr_player:
+                        #if we have > 2 VPs, we can place it
+                        if curr_player_vps > 2:
+                            valid = True
+                            break
+                        else:
+                            #if not, mark it as true, but look for buildings on it. if we have a building on it, can't place it there
+                            valid = True
+                            for key2 in tile.corners.keys():
+                                if tile.corners[key2].building is not None and tile.corners[key2].building.owner == curr_player:
+                                    valid = False
+                                    break
+
+            #valid tile can't be tile it's currently on
             if (tile.contains_robber):
                 valid = False
             if valid:
