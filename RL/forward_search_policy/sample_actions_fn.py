@@ -21,11 +21,16 @@ type_to_ind = {
     "exchange_res": 5,
     #"prop_trade": 6,
     #"respond_trade": 7,
-    "move_robber": 8,
-    "roll_dice": 9,
-    "end_turn": 10,
-    "steal": 11,
-    "discard": 12
+    # "move_robber": 8,
+    # "roll_dice": 9,
+    # "end_turn": 10,
+    # "steal": 11,
+    # "discard": 12
+    "move_robber": 6,
+    "roll_dice": 7,
+    "end_turn": 8,
+    "steal": 9,
+    "discard": 10
 }
 
 def update_action_masks(action, action_masks):
@@ -41,9 +46,6 @@ def update_action_masks(action, action_masks):
     elif action[0] == 4:
         if sum(action_masks[4]) > 1:
             action_masks[4][action[4]] = 0
-    elif action[0] == 8:
-        if sum(action_masks[3]) > 0:
-            action_masks[3][action[3]] = 0
     elif action[0] == 11:
         if sum(action_masks[6][1]) > 0:
             action_masks[6][1][action[6]] = 0
@@ -233,7 +235,7 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
         hidden_states_after.append(copy.deepcopy(next_hs))
         actions_sampled += 1
 
-    if type_masks[8] == 1: #end turn
+    if type_masks[6] == 1: #end turn
         effective_actions_available += 0
 
         with torch.no_grad():

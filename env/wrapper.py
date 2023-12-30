@@ -382,18 +382,21 @@ class EnvWrapper(object):
             if valid:
                 valid_tiles[i] = 1.0
         #catch as i think there's some very rare (and weird) circumstances where there are no available spots
+        #when our VP is 2 and opponent's is >2. e.g. if opponent placed both settlements on same tile on edge and we share one and have to move
         #moves robber to any tile without a building
         if (sum(valid_tiles) == 0):
             print(f"No good spots for robber: {valid_tiles} - ({curr_player_vps} - {opponent_vps}). Moving robber to blank tile")
-            valid = True
-            for key in tile.corners.keys():
-                if tile.corners[key].building is not None:
+            for i, tile in enumerate(self.game.board.tiles):
+                valid = True
+                for key in tile.corners.keys():
+                    if tile.corners[key].building is not None:
+                        valid = False
+                        break
+                if tile.contains_robber:
                     valid = False
-                    break
-            if tile.contains_robber:
-                valid = False
-            if valid:
-                valid_tiles[i] = 1.0
+                if valid:
+                    valid_tiles[i] = 1.0
+                print(valid_tiles)
 
         return valid_tiles
 
