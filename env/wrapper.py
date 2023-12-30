@@ -381,7 +381,20 @@ class EnvWrapper(object):
                 valid = False
             if valid:
                 valid_tiles[i] = 1.0
-        #print(valid_tiles)
+        #catch as i think there's some very rare (and weird) circumstances where there are no available spots
+        #moves robber to any tile without a building
+        if (sum(valid_tiles) == 0):
+            print(f"No good spots for robber: {valid_tiles} - ({curr_player_vps} - {opponent_vps}). Moving robber to blank tile")
+            valid = True
+            for key in tile.corners.keys():
+                if tile.corners[key].building is not None:
+                    valid = False
+                    break
+            if tile.contains_robber:
+                valid = False
+            if valid:
+                valid_tiles[i] = 1.0
+
         return valid_tiles
 
     def _get_valid_road_locations(self, player, road_building=False):

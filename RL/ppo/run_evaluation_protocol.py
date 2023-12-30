@@ -25,8 +25,6 @@ def run_evaluation_protocol(evaluation_manager, central_policy, earlier_policies
         update_num
     )
 
-    print(print_str)
-
     start_device = central_policy.dummy_param.device
     central_policy.to("cpu")
 
