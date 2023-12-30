@@ -88,7 +88,7 @@ def get_args():
         '--update-opponent-policies-every', type=int, default=1
     )
     parser.add_argument(
-        '--eval-every', type=int, default=25
+        '--eval-every', type=int, default=10
     )
     parser.add_argument(
         '--num-eval-episodes', type=int, default=128
