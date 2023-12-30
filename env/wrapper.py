@@ -378,6 +378,7 @@ class EnvWrapper(object):
                 valid = False
             if valid:
                 valid_tiles[i] = 1.0
+        print(valid_tiles)
         return valid_tiles
 
     def _get_valid_road_locations(self, player, road_building=False):
