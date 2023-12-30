@@ -396,7 +396,7 @@ class EnvWrapper(object):
                     valid = False
                 if valid:
                     valid_tiles[i] = 1.0
-                print(valid_tiles)
+            print(valid_tiles)
 
         return valid_tiles
 
