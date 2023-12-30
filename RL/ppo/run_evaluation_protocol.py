@@ -29,8 +29,7 @@ def run_evaluation_protocol(evaluation_manager, central_policy, earlier_policies
     central_policy.to("cpu")
 
     for i, policy in enumerate(policies_to_play_against):
-        policies = [copy.deepcopy(central_policy.state_dict()), copy.deepcopy(policies_to_play_against[i]),
-                    copy.deepcopy(policies_to_play_against[i]), copy.deepcopy(policies_to_play_against[i])]
+        policies = [copy.deepcopy(central_policy.state_dict()), copy.deepcopy(policies_to_play_against[i])]
 
         evaluation_manager.update_policies(policies)
 
