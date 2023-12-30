@@ -273,7 +273,7 @@ class Game(object):
                 return False, "A 7 was rolled and you have more than 9 resources. You must discard resources"
             else:
                 curr_player = self.players[self.players_to_discard[0]]
-                total_current_res = sum(curr_player.resources.values())
+                #total_current_res = sum(curr_player.resources.values())
                 # if total_current_res <= 9:
                 #     raise ValueError("Player is being told to discard when they have less than 9 resources!")
                 # else:
