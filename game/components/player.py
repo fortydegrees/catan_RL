@@ -13,7 +13,7 @@ class Player(object):
         for i in range(len(player_order)):
             if player_order[i] == self.id:
                 p_ind = i
-        for i, label in enumerate(["next", "next_next", "next_next_next"]):
+        for i, label in enumerate(["next"]):
             ind = (p_ind + 1 + i) % 2
             self.player_lookup[self.player_order[ind]] = label
             self.inverse_player_lookup[label] = self.player_order[ind]
@@ -36,8 +36,6 @@ class Player(object):
         }
         self.opponent_max_res = {
             "next": copy.deepcopy(self.visible_resources),
-            "next_next": copy.deepcopy(self.visible_resources),
-            "next_next_next": copy.deepcopy(self.visible_resources)
         }
         self.opponent_min_res = copy.deepcopy(self.opponent_max_res)
         self.harbours = {}

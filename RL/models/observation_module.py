@@ -44,7 +44,7 @@ class ObservationModule(nn.Module):
         self.other_players_module = OtherPlayersModule(other_player_main_in_dim, dev_card_embed_dim,
                                                        dev_card_model_dim, proj_dev_card_dim)
 
-        self.final_layer = init_(nn.Linear(19 * proj_tile_dim + 4 * 128, observation_out_dim))
+        self.final_layer = init_(nn.Linear(19 * proj_tile_dim + 2 * 128, observation_out_dim))
         self.relu = nn.ReLU()
         self.norm = nn.LayerNorm(observation_out_dim)
 
@@ -56,7 +56,8 @@ class ObservationModule(nn.Module):
                                     self.dev_card_embedding, self.hidden_card_mha, self.played_card_mha)
         other_player_outputs = [self.other_players_module(obs_dict[o_player+"_player_main"],
                 obs_dict[o_player+"_player_played_dev"], self.dev_card_embedding, self.played_card_mha) \
-                                for o_player in ["next", "next_next", "next_next_next"]]
-
+                                for o_player in ["next"]]
+        
         final_input = torch.cat((tile_encodings, current_player_output, *other_player_outputs), dim=-1)
+
         return self.relu(self.norm(self.final_layer(final_input)))

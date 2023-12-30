@@ -12,11 +12,8 @@ from RL.ppo.utils import _flatten_helper, _flatten_helper_reshape
 #             "next_next_player_main", "next_next_player_played_dev", "next_next_next_player_main",
 #             "next_next_next_player_played_dev"]
 OBS_KEYS = ["current_resources", "tile_representations", "current_player_main",
-            "current_player_played_dev", "current_player_hidden_dev", "next_player_main", "next_player_played_dev",
-            "next_next_player_main", "next_next_player_played_dev", "next_next_next_player_main",
-            "next_next_next_player_played_dev"]
-OBS_TYPES = ["normal", "normal", "normal", "list", "list", "normal", "list", "normal", "list", "normal",
-             "list"]
+            "current_player_played_dev", "current_player_hidden_dev", "next_player_main", "next_player_played_dev"]
+OBS_TYPES = ["normal", "normal", "normal", "list", "list", "normal", "list"]
 TYPE_CONDITIONAL_MASKS = [1, 5, 6]
 
 class BatchProcessor(object):

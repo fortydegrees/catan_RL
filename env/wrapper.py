@@ -77,7 +77,7 @@ class EnvWrapper(object):
         obs["current_player_main"], obs["current_player_played_dev"], obs["current_player_hidden_dev"] = \
             self._get_player_inputs(player, "current")
 
-        for target_p in ["next", "next_next", "next_next_next"]:
+        for target_p in ["next"]:
             obs[target_p+"_player_main"], obs[target_p + "_player_played_dev"], _ = self._get_player_inputs(
                 player, target_p
             )
@@ -142,10 +142,6 @@ class EnvWrapper(object):
             #never triggers for player 2 (good..?)
             if target_player == 0:
                 target_id = "next"
-            elif target_player == 1:
-                target_id = "next_next"
-            elif target_player == 2:
-                target_id = "next_next_next"
             else:
                 raise ValueError
             
@@ -420,7 +416,6 @@ class EnvWrapper(object):
         return valid_edges
 
     def _get_valid_steal_targets(self, player):
-        map = {"next": 0, "next_next": 1, "next_next_next": 2}
         valid_steal_targets = np.zeros((1,)) #changed from np.zeros((3,))
         valid_steal_targets[0] = 1.0
         # if (player.id == 1):
@@ -529,7 +524,7 @@ class EnvWrapper(object):
     def _parse_trade(self, head_outputs, translated_action, player):
         translated_action["player_proposing"] = player.id
         player_head = head_outputs[6]
-        map = {0: "next", 1: "next_next", 2: "next_next_next"}
+        map = {0: "next"}
         other_player_label = map[int(player_head)]
         other_player_id = player.inverse_player_lookup[other_player_label]
         translated_action["target_player"] = other_player_id
@@ -602,10 +597,6 @@ class EnvWrapper(object):
                         owner[0] = 1.0
                     elif building_owner == player.inverse_player_lookup["next"]:
                         owner[1] = 1.0
-                    elif building_owner == player.inverse_player_lookup["next_next"]:
-                        owner[2] = 1.0
-                    elif building_owner == player.inverse_player_lookup["next_next_next"]:
-                        owner[3] = 1.0
                 corners.append(building)
                 corners.append(owner)
             tile_feature = np.concatenate((contains_robber, value, resource, *corners))
@@ -622,10 +613,6 @@ class EnvWrapper(object):
             other_player_id = np.zeros((3,))
             if target_player_id == "next":
                 other_player_id[0] = 1.0
-            elif target_player_id == "next_next":
-                other_player_id[1] = 1.0
-            elif target_player_id == "next_next_next":
-                other_player_id[2] = 1.0
             else:
                 raise ValueError
 

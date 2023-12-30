@@ -27,11 +27,9 @@ class ForwardSearchPolicy(object):
         self.policy_type = "forward_search"
         self.lstm_size = lstm_size
 
-        self.standard_obs_keys = ["current_resources", "current_player_main", "next_player_main",
-                                  "next_next_player_main", "next_next_next_player_main"]
+        self.standard_obs_keys = ["current_resources", "current_player_main", "next_player_main"]
         self.list_int_obs_keys = ["current_player_played_dev", "current_player_hidden_dev",
-                                  "next_player_played_dev", "next_next_player_played_dev",
-                                  "next_next_next_player_played_dev"]
+                                  "next_player_played_dev"]
 
         self.consider_all_moves_for_opening_placement = consider_all_moves_for_opening_placement
         self.dont_propose_devcards = dont_propose_devcards

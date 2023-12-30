@@ -25,11 +25,9 @@ class SettlersAgentPolicy(nn.Module):
 
         self.policy_type = "neural_network"
 
-        self.standard_obs_keys = ["current_resources", "current_player_main", "next_player_main",
-                                  "next_next_player_main", "next_next_next_player_main"]
+        self.standard_obs_keys = ["current_resources", "current_player_main", "next_player_main"]
         self.list_int_obs_keys = ["current_player_played_dev", "current_player_hidden_dev",
-                                  "next_player_played_dev", "next_next_player_played_dev",
-                                  "next_next_next_player_played_dev"]
+                                  "next_player_played_dev"]
 
         self.observation_module = observation_module
 
@@ -61,7 +59,7 @@ class SettlersAgentPolicy(nn.Module):
 
     def base(self, obs_dict, hidden_states, done_masks):
         observation_out = self.observation_module(obs_dict)
-
+        
         if self.include_lstm:
             lstm_output, hidden_states = self._forward_lstm(observation_out, hidden_states, done_masks)
             observation_out = torch.cat((observation_out, lstm_output), dim=-1)
