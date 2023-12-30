@@ -94,7 +94,7 @@ def get_args():
         '--num-eval-episodes', type=int, default=128
     )
     parser.add_argument(
-        '--num-eval-processes', type=int, default=16
+        '--num-eval-processes', type=int, default=8
     )
     parser.add_argument(
         '--load-from-checkpoint', action='store_true', default=False
