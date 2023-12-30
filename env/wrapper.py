@@ -346,44 +346,38 @@ class EnvWrapper(object):
         for i, tile in enumerate(self.game.board.tiles):
             #added friendly robber
             #if our opponent has 2 VPs, don't place on any tile that has a building (ours or theirs)
-            valid = True
+            
             if opponent_vps <= 2:
+                valid = True
                 for key in tile.corners.keys():
                     #don't place on any buildings
                     if tile.corners[key].building is not None:
                         valid = False
                         break
 
-            #if opponent has > 2 VPs, only valid tiles are tiles with their buildings on
-                    #but this actually might also catch tiles with our buildings on if we have 2 VPs
-            else:
-                #get all corners of a tile
+            #if opponent has >2 VPs but we have 2
+            #all tiles are invalid
+            #then if it has a building, it's valid
+            #but if we're on it, it's invalid
+            elif curr_player_vps <= 2:
+                valid = False
                 for key in tile.corners.keys():
-                    #if a tile has no building on it, we can place
-                    # if tile.corners[key].building is None:
-                    #     valid = True
-                    #if a corner has a building and that building is not ours
-                    #if tile.corners[key].building is not None and tile.corners[key].building != curr_player:
                     if tile.corners[key].building is not None:
+                        valid = True
                         #if our building is on a tile and we have 2 VPs, don't place (removes shared tiles)
-                        if tile.corners[key].building.owner == curr_player and curr_player_vps <= 2:
+                        if tile.corners[key].building.owner == curr_player:
                             valid = False
                             break
-                        # #if we have > 2 VPs, we can place it
-                        # if curr_player_vps > 2:
-                        #     valid = True
-                        #     break
-                        # else:
-                        #     #if we have 2 VPs, we can't place on a tile we share with opponent
-                        #     #if not, mark it as true, but look for buildings on it. if we have a building on it, can't place it there
-                        #     valid = True
-                        #     for key2 in tile.corners.keys():
-                        #         if tile.corners[key2].building is not None and tile.corners[key2].building.owner == curr_player:
-                        #             valid = False
-                        #             break
-
-            #valid tile can't be tile it's currently on
-            if (tile.contains_robber):
+            #both players have >2 VPs. valid tiles are ones with opponent on it (no check if we are)
+            else:
+                valid = False
+                for key in tile.corners.keys():
+                    if tile.corners[key].building is not None and tile.corners[key].building != curr_player:
+                        valid = True
+                        break
+                       
+            #valid tile can't be tile it's currently on (HAVE to move robber)
+            if tile.contains_robber:
                 valid = False
             if valid:
                 valid_tiles[i] = 1.0
