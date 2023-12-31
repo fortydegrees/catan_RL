@@ -49,8 +49,10 @@ def get_args():
         '--num-processes', type=int, default=4
     )
     parser.add_argument(
-        '--num-envs-per-process', type=int, default=5
+        '--num-envs-per-process', type=int, default=10
     )
+    #The number of decisions the agent being trained (i.e. the agent with the most recent policy) should make in each game on each process.
+    #default 200 (for 4p)
     parser.add_argument(
         '--num-steps', type=int, default=600
     )

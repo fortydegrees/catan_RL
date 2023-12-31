@@ -52,6 +52,7 @@ def main():
     central_policy = build_agent_model(device=device)
 
     if args.load_from_checkpoint:
+        #print(args.load_file_path)
         central_policy_sd, earlier_policies, eval_logs, start_update, args, entropy_coef, rew_anneal_fac = torch.load("RL/results/"+args.load_file_path)
         update_opponent_policies(earlier_policies, rollout_manager, args)
         central_policy.load_state_dict(central_policy_sd)
@@ -152,7 +153,7 @@ def main():
 
         update_num += 1
 
-        torch.save((central_policy.state_dict(), earlier_policies, eval_logs, update_num, args),
+        torch.save((central_policy.state_dict(), earlier_policies, eval_logs, update_num, args, entropy_coef, rew_anneal_fac),
                    "RL/results/current.pt")
 
     def fail_handler():
