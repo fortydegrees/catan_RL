@@ -62,8 +62,12 @@ def get_args():
     parser.add_argument(
         '--ppo-epoch', type=int, default=10
     )
+    #The number of minibatches each epoch is broken up into (so each epoch consists of this many gradient updates to the model).
+    #default 64
+    #So each minibatch is made up of (128 * 5 * 200) = 128,000 / 64 = 2000 samples. Whilst I think this is reasonable, I have to say I'm not completely sure.
+    #So we have 2000 samples (5 * 10 * 600) = 30,000 / 15 = 2,000
     parser.add_argument(
-        '--num-mini-batch', type=int, default=64
+        '--num-mini-batch', type=int, default=15
     )
     parser.add_argument(
         '--clip-param', type=float, default=0.2
@@ -89,8 +93,9 @@ def get_args():
     parser.add_argument(
         '--update-opponent-policies-every', type=int, default=1
     )
+    #default = 25
     parser.add_argument(
-        '--eval-every', type=int, default=10
+        '--eval-every', type=int, default=25
     )
     parser.add_argument(
         '--num-eval-episodes', type=int, default=128
