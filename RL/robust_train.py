@@ -53,7 +53,11 @@ def main():
 
     if args.load_from_checkpoint:
         #print(args.load_file_path)
-        central_policy_sd, earlier_policies, eval_logs, start_update, args, entropy_coef, rew_anneal_fac = torch.load("RL/results/"+args.load_file_path)
+        if torch.cuda.is_available():
+            central_policy_sd, earlier_policies, eval_logs, start_update, args, entropy_coef, rew_anneal_fac = torch.load("RL/results/"+args.load_file_path)
+        else:
+            central_policy_sd, earlier_policies, eval_logs, start_update, args, entropy_coef, rew_anneal_fac = torch.load("RL/results/"+args.load_file_path,  map_location=torch.device('cpu'))
+
         update_opponent_policies(earlier_policies, rollout_manager, args)
         central_policy.load_state_dict(central_policy_sd)
         central_policy.to("cpu")
