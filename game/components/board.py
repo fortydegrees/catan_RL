@@ -20,7 +20,7 @@ tile position -> inds
 """
 
 class Board(object):
-    def __init__(self, randomise_number_placement = True, fixed_terrain_placements = None,
+    def __init__(self, randomise_number_placement = False, fixed_terrain_placements = None,
                  fixed_number_order = None):
         self.DEFAULT_NUMBER_ORDER = [5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8, 10, 9, 4, 5, 6, 3, 11]
         self.NUMBER_PLACEMENT_INDS = [0, 3, 7, 12, 16, 17, 18, 15, 11, 6, 2, 1, 4, 8, 13, 14, 10, 5, 9]
