@@ -1,4 +1,5 @@
 *__pycache__*
-RL/results/archive/*
+RL/results/archive/*.*
 RL/results/current.pt
 *.pt
+.DS_Store

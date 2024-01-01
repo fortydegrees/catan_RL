@@ -381,7 +381,7 @@ class EnvWrapper(object):
         #e.g. if opponent placed both settlements on same tile on edge and we share one and have to move. 
         #moves robber to any tile without a building
         if (sum(valid_tiles) == 0):
-            #print(f"No good spots for robber: {valid_tiles} - ({curr_player_vps} - {opponent_vps}). Moving robber to blank tile")
+            print(f"No good spots for robber: {valid_tiles} - ({curr_player_vps} - {opponent_vps}). Moving robber to blank tile")
             for i, tile in enumerate(self.game.board.tiles):
                 valid = True
                 for key in tile.corners.keys():
@@ -392,7 +392,7 @@ class EnvWrapper(object):
                     valid = False
                 if valid:
                     valid_tiles[i] = 1.0
-            #print(valid_tiles)
+            print(valid_tiles)
 
         return valid_tiles
 
