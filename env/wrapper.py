@@ -97,6 +97,7 @@ class EnvWrapper(object):
             if self.dense_reward:
                 rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
                 #added and changed some of these
+                #TODO: add negative reward if dice rolled and we're blocked?
                 if action[0] == ActionTypes.BuyDevelopmentCard:
                     rewards[player_id] += 2
                 if action[0] == ActionTypes.PlayDevelopmentCard:
@@ -365,10 +366,9 @@ class EnvWrapper(object):
             #then if it has a building, it's valid
             #but if we're on it, it's invalid
             elif curr_player_vps <= 2:
-                valid = False
+                valid = True
                 for key in tile.corners.keys():
                     if tile.corners[key].building is not None:
-                        valid = True
                         #if our building is on a tile and we have 2 VPs, don't place (removes shared tiles)
                         if tile.corners[key].building.owner == curr_player:
                             valid = False
@@ -389,8 +389,9 @@ class EnvWrapper(object):
         #catch as i think there's some circumstances where there are no available spots when we have 2 VPs and opponent has >2
         #e.g. if opponent placed both settlements on same tile on edge and we share one and have to move. 
         #so we just move robber to any tile without a building
+        #Should never actually trigger now i've changed it
         if (sum(valid_tiles) == 0):
-            print(f"No good spots for robber: {valid_tiles} - ({curr_player_vps} - {opponent_vps}). Moving robber to blank tile")
+            print(f"No good spots for robber: {valid_tiles} - ({curr_player_vps} - {opponent_vps}). Moving robber to blank tile. (this should never trigger)")
             for i, tile in enumerate(self.game.board.tiles):
                 valid = True
                 for key in tile.corners.keys():
