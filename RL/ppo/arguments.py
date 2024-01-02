@@ -49,15 +49,15 @@ def get_args():
         '--seed', type=int, default=0
     )
     parser.add_argument(
-        '--num-processes', type=int, default=32
+        '--num-processes', type=int, default=24
     )
     parser.add_argument(
-        '--num-envs-per-process', type=int, default=10
+        '--num-envs-per-process', type=int, default=5
     )
     #The number of decisions the agent being trained (i.e. the agent with the most recent policy) should make in each game on each process.
     #default 200 (for 4p)
     parser.add_argument(
-        '--num-steps', type=int, default=400
+        '--num-steps', type=int, default=200
     )
     parser.add_argument(
         '--truncated-seq-len', type=int, default=10
@@ -73,7 +73,7 @@ def get_args():
     #So we have 2000 samples (5 * 10 * 600) = 30,000 / 15 = 2,000
     #default was 200
     parser.add_argument(
-        '--num-mini-batch', type=int, default=640
+        '--num-mini-batch', type=int, default=12
     )
     parser.add_argument(
         '--clip-param', type=float, default=0.2

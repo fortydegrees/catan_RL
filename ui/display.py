@@ -26,6 +26,7 @@ def draw_polygon_alpha(surface, color, points):
 
 class Display(object):
     def __init__(self, game=None, env=None, interactive=False, debug_mode=False, policies=None, test=False):
+        print("Hi from display!")
         if game is None:
             if env is None:
                 raise RuntimeError("Need to provide display with either game or env")
