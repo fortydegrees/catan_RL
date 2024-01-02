@@ -356,6 +356,9 @@ class EnvWrapper(object):
                         if tile.corners[key].building.owner == other_player:
                             valid = False
                             break
+                        if tile.corners[key].building.owner == curr_player and curr_player_vps <= 2:
+                            valid = False
+                            break
 
             #if opponent has >2 VPs but we have 2
             #all tiles are invalid
