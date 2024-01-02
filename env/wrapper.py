@@ -96,14 +96,19 @@ class EnvWrapper(object):
             updated_vps[player_id] = self.game.players[player_id].victory_points
             if self.dense_reward:
                 rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
+                #added and changed some of these
+                if action[0] == ActionTypes.BuyDevelopmentCard:
+                    rewards[player_id] += 2
                 if action[0] == ActionTypes.PlayDevelopmentCard:
-                    rewards[player_id] += 5
-                if action[0] == ActionTypes.MoveRobber:
                     rewards[player_id] += 1
+                if action[0] == ActionTypes.MoveRobber:
+                    rewards[player_id] += 0.5
                 if action[0] == ActionTypes.DiscardResource:
-                    rewards[player_id] -= 0.3
+                    rewards[player_id] -= 1
                 if action[0] == ActionTypes.UpgradeToCity:
-                    rewards[player_id] += 2.5
+                    rewards[player_id] += 5
+                if action[0] == ActionTypes.PlaceSettlement:
+                    rewards[player_id] += 3
                 #TODO: penalty for early exchange?
 
                 rewards[player_id] *= self.reward_annealing_factor
