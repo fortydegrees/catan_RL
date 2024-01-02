@@ -1,6 +1,9 @@
 import argparse
 import torch
 
+#windows (tested): 5 processes, 10 envs per, 15 mini batch, 4 eval processes
+#same for local mac but not tested
+#mostly did 600 steps but think this is too much. might drop to 300
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -46,7 +49,7 @@ def get_args():
         '--seed', type=int, default=0
     )
     parser.add_argument(
-        '--num-processes', type=int, default=4
+        '--num-processes', type=int, default=32
     )
     parser.add_argument(
         '--num-envs-per-process', type=int, default=10
@@ -54,7 +57,7 @@ def get_args():
     #The number of decisions the agent being trained (i.e. the agent with the most recent policy) should make in each game on each process.
     #default 200 (for 4p)
     parser.add_argument(
-        '--num-steps', type=int, default=600
+        '--num-steps', type=int, default=400
     )
     parser.add_argument(
         '--truncated-seq-len', type=int, default=10
@@ -64,10 +67,13 @@ def get_args():
     )
     #The number of minibatches each epoch is broken up into (so each epoch consists of this many gradient updates to the model).
     #default 64
-    #So each minibatch is made up of (128 * 5 * 200) = 128,000 / 64 = 2000 samples. Whilst I think this is reasonable, I have to say I'm not completely sure.
+    #So each minibatch is made up of (128 * 5 * 200) = 128,000 / 64 = 2000 samples. 
+    #Whilst I think this is reasonable, I have to say I'm not completely sure.
+
     #So we have 2000 samples (5 * 10 * 600) = 30,000 / 15 = 2,000
+    #default was 200
     parser.add_argument(
-        '--num-mini-batch', type=int, default=15
+        '--num-mini-batch', type=int, default=640
     )
     parser.add_argument(
         '--clip-param', type=float, default=0.2
@@ -95,13 +101,13 @@ def get_args():
     )
     #default = 25
     parser.add_argument(
-        '--eval-every', type=int, default=25
+        '--eval-every', type=int, default=15
     )
     parser.add_argument(
         '--num-eval-episodes', type=int, default=128
     )
     parser.add_argument(
-        '--num-eval-processes', type=int, default=4
+        '--num-eval-processes', type=int, default=12
     )
     parser.add_argument(
         '--load-from-checkpoint', action='store_true', default=False
