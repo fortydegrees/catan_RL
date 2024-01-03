@@ -36,9 +36,9 @@ if __name__ == "__main__":
     if args.other_policies != "":
         other_policies = args.other_policies.split(" ")
         if len(other_policies) == 1:
-            other_policies = [other_policies[0]] * 3
+            other_policies = [other_policies[0]]
         other_policy_state_dicts = [
-            torch.load(Path("RL", "results", other_policies[i]), map_location="cpu") for i in range(3)
+            torch.load(Path("RL", "results", other_policies[i]), map_location="cpu") for i in range(1)
         ]
     else:
         other_policy_state_dicts = [policy_state_dict, policy_state_dict, policy_state_dict]

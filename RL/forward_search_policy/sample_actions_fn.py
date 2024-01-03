@@ -33,7 +33,28 @@ type_to_ind = {
     "discard": 10
 }
 
+
+
+#pretty sure these are action_masks
+        # valid_actions = [
+        #0     np.zeros((num_actions,)),
+        #1     np.ones((3, N_CORNERS,)), #place settlement/city head
+        #2     np.ones((N_EDGES+1,)), #build road head
+        #3     np.ones((N_TILES,)), #move robber head
+        #4     np.ones((len(DevelopmentCard),)), #play dev card head
+        #5  
+        #6     np.ones((3, 1)), #player head  changed. was 3,3
+        #7
+        #8
+        #9     np.ones((4, 5)), #exchange this res head
+        #10     np.ones((5,)), #receive this res head
+        #11     np.ones((5,)) #discard resource head
+        # ]
+
 def update_action_masks(action, action_masks):
+    # print('ac', action)
+    print('am', len(action_masks[1][0]))
+    print(action[1])
     if action[0] == 0:
         if sum(action_masks[1][0]) > 1:
             action_masks[1][0][action[1]] = 0
@@ -46,12 +67,12 @@ def update_action_masks(action, action_masks):
     elif action[0] == 4:
         if sum(action_masks[4]) > 1:
             action_masks[4][action[4]] = 0
-    elif action[0] == 11:
-        if sum(action_masks[6][1]) > 0:
-            action_masks[6][1][action[6]] = 0
-    elif action[0] == 12:
-        if sum(action_masks[11]) > 1:
-            action_masks[11][action[11]] = 0
+    elif action[0] == 9:
+        if sum(action_masks[5][1]) > 0:
+            action_masks[5][1][action[5]] = 0
+    elif action[0] == 10:
+        if sum(action_masks[8]) > 1:
+            action_masks[8][action[8]] = 0
     return action_masks
 
 def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
@@ -67,6 +88,8 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
 
     type_masks = action_masks[0]
 
+    #print('ac', action_masks[5])
+
     terminal_mask = torch.ones(1, 1)
 
     proposed_actions = []
@@ -77,10 +100,10 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
     actions_sampled = 0
     trades_proposed = 0
 
+
     if type_masks[0] == 1: #place settlement
         actions_available_type["settlement"] = np.sum(action_masks[1][0]) - 1
         effective_actions_available += actions_available_type["settlement"]
-
         with torch.no_grad():
             _, action, _, next_hs = policy.act(obs, hidden_state, terminal_mask, action_masks_torch, deterministic=False,
                                                           condition_on_action_type=0)
@@ -161,7 +184,7 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
         action_masks_torch = policy.act_masks_to_torch(copy.copy(action_masks))
 
     if type_masks[5] == 1: #exchange res
-        actions_available_type["exchange_res"] = np.sum(action_masks[10]) * np.sum(action_masks[9][0]) - 1
+        actions_available_type["exchange_res"] = np.sum(action_masks[7]) * np.sum(action_masks[6][0]) - 1
         effective_actions_available += actions_available_type["exchange_res"]
 
         with torch.no_grad():
@@ -174,36 +197,7 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
         hidden_states_after.append(copy.deepcopy(next_hs))
         actions_sampled += 1
 
-        exchanges_proposed.append(str(action[9]) + "_" + str(action[10]))
-
-    # if type_masks[6] == 1: #prop trade
-    #     if dont_propose_trades == False:
-    #         actions_available_type["prop_trade"] = max_prop_trade_actions - 1
-    #         effective_actions_available += actions_available_type["prop_trade"]
-
-    #         with torch.no_grad():
-    #             _, action, _, next_hs = policy.act(obs, hidden_state, terminal_mask, action_masks_torch,
-    #                                                deterministic=False, condition_on_action_type=6)
-    #         action = policy.torch_act_to_np(action)
-    #         assert action[0] == 6
-
-    #         proposed_actions.append(action)
-    #         hidden_states_after.append(copy.deepcopy(next_hs))
-    #         actions_sampled += 1
-    #         trades_proposed += 1
-
-    # if type_masks[7] == 1: #respond to trade
-    #     effective_actions_available += np.sum(action_masks[5]) - 1
-
-    #     with torch.no_grad():
-    #         _, action, _, next_hs = policy.act(obs, hidden_state, terminal_mask, action_masks_torch,
-    #                                            deterministic=False, condition_on_action_type=7)
-    #     action = policy.torch_act_to_np(action)
-    #     assert action[0] == 7
-
-    #     proposed_actions.append(action)
-    #     hidden_states_after.append(copy.deepcopy(next_hs))
-    #     actions_sampled += 1
+        exchanges_proposed.append(str(action[6]) + "_" + str(action[7]))
 
     if type_masks[6] == 1: #move robber
         actions_available_type["move_robber"] = np.sum(action_masks[3]) - 1
@@ -211,9 +205,9 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
 
         with torch.no_grad():
             _, action, _, next_hs = policy.act(obs, hidden_state, terminal_mask, action_masks_torch,
-                                               deterministic=False, condition_on_action_type=8)
+                                               deterministic=False, condition_on_action_type=6)
         action = policy.torch_act_to_np(action)
-        assert action[0] == 8
+        assert action[0] == 6
 
         proposed_actions.append(action)
         hidden_states_after.append(copy.deepcopy(next_hs))
@@ -227,36 +221,36 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
 
         with torch.no_grad():
             _, action, _, next_hs = policy.act(obs, hidden_state, terminal_mask, action_masks_torch,
-                                               deterministic=False, condition_on_action_type=9)
+                                               deterministic=False, condition_on_action_type=7)
         action = policy.torch_act_to_np(action)
-        assert action[0] == 9
+        assert action[0] == 7
 
         proposed_actions.append(action)
         hidden_states_after.append(copy.deepcopy(next_hs))
         actions_sampled += 1
 
-    if type_masks[6] == 1: #end turn
+    if type_masks[8] == 1: #end turn
         effective_actions_available += 0
 
         with torch.no_grad():
             _, action, _, next_hs = policy.act(obs, hidden_state, terminal_mask, action_masks_torch,
-                                               deterministic=False, condition_on_action_type=10)
+                                               deterministic=False, condition_on_action_type=8)
         action = policy.torch_act_to_np(action)
-        assert action[0] == 10
+        assert action[0] == 8
 
         proposed_actions.append(action)
         hidden_states_after.append(copy.deepcopy(next_hs))
         actions_sampled += 1
 
     if type_masks[9] == 1: #steal
-        actions_available_type["steal"] = np.sum(action_masks[6][1]) - 1
+        actions_available_type["steal"] = np.sum(action_masks[5][1]) - 1
         effective_actions_available += actions_available_type["steal"]
 
         with torch.no_grad():
             _, action, _, next_hs = policy.act(obs, hidden_state, terminal_mask, action_masks_torch,
-                                               deterministic=False, condition_on_action_type=11)
+                                               deterministic=False, condition_on_action_type=9)
         action = policy.torch_act_to_np(action)
-        assert action[0] == 11
+        assert action[0] == 9
 
         proposed_actions.append(action)
         hidden_states_after.append(copy.deepcopy(next_hs))
@@ -266,14 +260,14 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
         action_masks_torch = policy.act_masks_to_torch(copy.copy(action_masks))
 
     if type_masks[10] == 1: #discard
-        actions_available_type["discard"] = np.sum(action_masks[11]) - 1
+        actions_available_type["discard"] = np.sum(action_masks[8]) - 1
         effective_actions_available += actions_available_type["discard"]
 
         with torch.no_grad():
             _, action, _, next_hs = policy.act(obs, hidden_state, terminal_mask, action_masks_torch,
-                                               deterministic=False, condition_on_action_type=12)
+                                               deterministic=False, condition_on_action_type=10)
         action = policy.torch_act_to_np(action)
-        assert action[0] == 12
+        assert action[0] == 10
 
         proposed_actions.append(action)
         hidden_states_after.append(copy.deepcopy(next_hs))
@@ -304,23 +298,22 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
                 break
         if ac_type is None:
             break #something gone wrong - but just return what we have.
-
+        print(ac_type)
         with torch.no_grad():
             _, policy_action, _, next_hs = policy.act(obs, hidden_state, terminal_mask, action_masks_torch,
                                                       deterministic=False, condition_on_action_type=type_to_ind[ac_type])
         policy_action = policy.torch_act_to_np(policy_action)
 
         hidden_states_after.append(next_hs)
-        if ac_type == "prop_trade":
-            proposed_actions.append(policy_action)
-            trades_proposed += 1
-            continue
-        elif ac_type == "exchange_res":
-            prop_exchange = str(policy_action[9]) + "_" + str(policy_action[10])
+
+
+        
+        if ac_type == "exchange_res":
+            prop_exchange = str(policy_action[6]) + "_" + str(policy_action[7])
             while prop_exchange not in exchanges_proposed:
-                policy_action[9] = random.choice(np.where(action_masks[9][0])[0])
-                policy_action[10] = random.choice(np.where(action_masks[10])[0])
-                prop_exchange = str(policy_action[9]) + "_" + str(policy_action[10])
+                policy_action[6] = random.choice(np.where(action_masks[6][0])[0])
+                policy_action[7] = random.choice(np.where(action_masks[7])[0])
+                prop_exchange = str(policy_action[6]) + "_" + str(policy_action[7])
             proposed_actions.append(policy_action)
             exchanges_proposed.append(prop_exchange)
         else:

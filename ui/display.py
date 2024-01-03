@@ -759,7 +759,6 @@ class Display(object):
                                         #"current_resources": np.zeros((6,)),
                                         #"player_id": player.id
             #}
-            print(self.env._get_obs())
 
 
             curr_hidden_state = self.curr_hidden_states[players_go]

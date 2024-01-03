@@ -143,7 +143,7 @@ class ForwardSearchPolicy(object):
                 self.workers_ready_to_simulate.append(worker_id)
 
         best_action_id = self._select_action(explore=False)
-        # print("\nDecision: {}. Action id: {}. value for best action: {:.2f} (num times selected: {})\n".format(decision_no, best_action_id, self.exploit_scores[best_action_id] / self.num_simulations_finished_each_action[best_action_id], self.num_simulations_finished_each_action[best_action_id]))
+        print("\nDecision: {}. Action id: {}. value for best action: {:.2f} (num times selected: {})\n".format(decision_no, best_action_id, self.exploit_scores[best_action_id] / self.num_simulations_finished_each_action[best_action_id], self.num_simulations_finished_each_action[best_action_id]))
         return self.proposed_actions[best_action_id], self.player_next_hidden_states[best_action_id]
 
     def _select_action(self, explore=True):
@@ -197,7 +197,7 @@ class ForwardSearchPolicy(object):
     def act_masks_to_torch(self, masks):
         for z in range(len(masks)):
             masks[z] = torch.tensor(masks[z], dtype=torch.float32, device=self.dummy_param.device).unsqueeze(0)
-            if z == 1 or z == 6 or z == 9:
+            if z == 1 or z == 5 or z == 6:
                 masks[z] = torch.transpose(masks[z], 0, 1)
         return masks
 
