@@ -206,8 +206,9 @@ class Game(object):
     def can_buy_road(self, player):
         if self.initial_placement_phase:
             return True
-        if player.resources[Resource.Wood] > 0 and player.resources[Resource.Brick] > 0:
-            return True
+        if self.road_bank[player.id] > 0:
+            if player.resources[Resource.Wood] > 0 and player.resources[Resource.Brick] > 0:
+                return True
         else:
             return False
 
@@ -221,6 +222,7 @@ class Game(object):
                 self.resource_bank[Resource.Wood] += 1
                 self.resource_bank[Resource.Brick] += 1
         self.board.insert_road(player.id, edge)
+        self.road_bank[player.id] -= 1
         player.roads.append(edge.id)
 
     def can_buy_city(self, player):
@@ -457,6 +459,9 @@ class Game(object):
 
             target_resource = action["desired_resource"]
             trading_resource = action["trading_resource"]
+
+            if target_resource == trading_resource:
+                return False, "Can't exchange the same resource"
 
             #TEST PRINT
             #print(action)

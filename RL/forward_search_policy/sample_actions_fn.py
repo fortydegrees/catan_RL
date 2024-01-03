@@ -32,23 +32,6 @@ type_to_ind = {
 }
 
 
-
-#pretty sure these are action_masks
-        # valid_actions = [
-        #0     np.zeros((num_actions,)),
-        #1     np.ones((3, N_CORNERS,)), #place settlement/city head
-        #2     np.ones((N_EDGES+1,)), #build road head
-        #3     np.ones((N_TILES,)), #move robber head
-        #4     np.ones((len(DevelopmentCard),)), #play dev card head
-        #5  
-        #6     np.ones((3, 1)), #player head  changed. was 3,3
-        #7
-        #8
-        #9     np.ones((4, 5)), #exchange this res head
-        #10     np.ones((5,)), #receive this res head
-        #11     np.ones((5,)) #discard resource head
-        # ]
-
 def update_action_masks(action, action_masks):
     if action[0] == 0:
         if sum(action_masks[1][0]) > 1:

@@ -95,17 +95,29 @@ class EnvWrapper(object):
         for player_id in [PlayerId.Blue, PlayerId.Red]:
             updated_vps[player_id] = self.game.players[player_id].victory_points
             if self.dense_reward:
+                                
                 rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
+                #TODO: add something to reward increasing production
+                    #and to value resource harmony? e.g. all resources? brick/wood 1:1, 
+                #extending road network
+                    #reward for >10 network. even more for 13/14/15
+                #extending army
+
                 #added and changed some of these
                 #TODO: add negative reward if dice rolled and we're blocked?
+                    #teaches that we want to be unblocked
+
+                #tempted to remove this too for similar reasons as below. the rewards from the dev should be the learned behaviour
                 if action[0] == ActionTypes.BuyDevelopmentCard:
                     rewards[player_id] += 2
-                if action[0] == ActionTypes.PlayDevelopmentCard:
-                    rewards[player_id] += 1
-                if action[0] == ActionTypes.MoveRobber:
-                    rewards[player_id] += 0.5
+                #removed as i don't think you should get a reward simply for playing a development card.
+                #the product of a dev should be its own reward, e.g. YoP for balancing hand, mono for production/hurting other player. knight for unblocking/stealing card
+                # if action[0] == ActionTypes.PlayDevelopmentCard:
+                #     rewards[player_id] += 1
+                # if action[0] == ActionTypes.MoveRobber:
+                #     rewards[player_id] += 0.5
                 if action[0] == ActionTypes.DiscardResource:
-                    rewards[player_id] -= 1
+                    rewards[player_id] -= 0.2
                 if action[0] == ActionTypes.UpgradeToCity:
                     rewards[player_id] += 5
                 if action[0] == ActionTypes.PlaceSettlement:
@@ -275,7 +287,7 @@ class EnvWrapper(object):
                 valid_actions[0][ActionTypes.UpgradeToCity] = 1.0
                 valid_actions[1][1] = valid_corners
         #place road
-        if resources[Resource.Wood] > 0 and resources[Resource.Brick] > 0:
+        if resources[Resource.Wood] > 0 and resources[Resource.Brick] > 0 and self.game.road_bank[player.id] > 0:
             valid_edges = self._get_valid_road_locations(player)
             if sum(valid_edges) > 0:
                 valid_actions[0][ActionTypes.PlaceRoad] = 1.0
@@ -294,8 +306,11 @@ class EnvWrapper(object):
                     valid_actions[6][2] = valid_exch_res
                     valid_actions[7] = valid_exch_res
         #exchange resources
+        #where does this go..?
+        #TODO: disallow same-for-same resource exchange
         valid_resources_to_exchange = self._get_valid_exchange_resources(player)
-        valid_resources_to_receive = self._get_valid_exchange_receive_resources()
+        #changed. might need to adjust length
+        valid_resources_to_receive = self._get_valid_exchange_receive_resources(valid_resources_to_exchange)
       
         if sum(valid_resources_to_exchange) > 0 and sum(valid_resources_to_receive) > 0:
             valid_actions[0][ActionTypes.ExchangeResource] = 1.0
@@ -308,14 +323,6 @@ class EnvWrapper(object):
             valid_actions[0][ActionTypes.MoveRobber] = 1.0
             valid_actions[3] = valid_tiles
             
-        #propose trade
-        #total_res = sum(resources.values())
-        # if self.max_proposed_trades_per_turn is None:
-        #     if total_res > 0:
-        #         valid_actions[0][ActionTypes.ProposeTrade] = 1.0
-        # else:
-        #     if self.game.trades_proposed_this_turn < self.max_proposed_trades_per_turn and total_res > 0:
-        #         valid_actions[0][ActionTypes.ProposeTrade] = 1.0
         return valid_actions
 
 
@@ -498,9 +505,12 @@ class EnvWrapper(object):
                 valid_resources[i] = 1.0 #can exchange at 4:1 with no harbour.
         return valid_resources
 
-    def _get_valid_exchange_receive_resources(self):
+    def _get_valid_exchange_receive_resources(self, exchange_res):
         valid_resources = np.zeros((len(Resource)-1,))
         for i, res in enumerate([Resource.Brick, Resource.Wood, Resource.Ore, Resource.Sheep, Resource.Wheat]):
+            #ignore for same resource
+            if (exchange_res[i] == 1):
+                continue
             if self.game.resource_bank[res] > 0:
                 valid_resources[i] = 1.0
         return valid_resources
