@@ -26,7 +26,7 @@ def draw_polygon_alpha(surface, color, points):
 
 class Display(object):
     def __init__(self, game=None, env=None, interactive=False, debug_mode=False, policies=None, test=False):
-        print("Hi from display!")
+        self.window = Tk()
         if game is None:
             if env is None:
                 raise RuntimeError("Need to provide display with either game or env")
@@ -745,13 +745,23 @@ class Display(object):
                 self.curr_hidden_states[player_id] =  (torch.zeros(1, self.dummy_policy.lstm_size, device=self.dummy_policy.dummy_param.device),
                                                        torch.zeros(1, self.dummy_policy.lstm_size, device=self.dummy_policy.dummy_param.device))
 
+    #TODO: this is where it calls the AI
     def step_AI(self, deterministic=True):
         players_go = self.get_players_turn()
         if isinstance(self.policies[players_go], str):
             messagebox.showinfo('Error', "It is currently a human player's turn.")
             return False
         else:
+
             curr_obs = self.dummy_policy.obs_to_torch(self.env._get_obs())
+            
+            #self.env._get_obs() = obs = {
+                                        #"current_resources": np.zeros((6,)),
+                                        #"player_id": player.id
+            #}
+            print(self.env._get_obs())
+
+
             curr_hidden_state = self.curr_hidden_states[players_go]
             action_masks = self.dummy_policy.act_masks_to_torch(self.env.get_action_masks())
 
@@ -814,7 +824,7 @@ class Display(object):
 
         while run:
             pygame.time.delay(150)
-            Tk().wm_withdraw()
+            self.window.wm_withdraw()
             self.screen.fill(self.BACKGROUND_COLOUR)
             self.draw_invisible_edges()
             if self.game.can_move_robber:
