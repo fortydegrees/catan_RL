@@ -53,8 +53,7 @@ class MultiActionHeadsGeneralised(nn.Module):
                 if entry[0] == -1:
                     initial_input = main_input
                 else:
-                    # print(head_outputs)
-                    # print(entry)
+    
                     initial_input = head_outputs[entry[0]]
                 if entry[1] is not None:
                     initial_input = entry[1](initial_input)
@@ -75,20 +74,7 @@ class MultiActionHeadsGeneralised(nn.Module):
                             masks_to_mult[action_type_mask, ...] = 1.0
                         head_mask *= masks_to_mult
                     else:
-                        #prev_head_ind = 0
-                        #i = 1
 
-                        # print(masks)
-                        # print(masks[i])
-                        # print(masks)
-                        # print(head_type_to_option_map)
-                        # print(action_outputs)
-
-                        #i = 5
-                        #action_outputs[prev_head_ind] = tensor([[0]])
-                        #head_type_to_option_map[action_outputs[prev_head_ind]] = tensor([[2]])
-                        #masks[i] = tensor([[1.],[1.],[1.]])
-                        #print(head_type_to_option_map[action_outputs[prev_head_ind]])
                         masks_to_mult = masks[i][head_type_to_option_map[action_outputs[prev_head_ind]].squeeze(),
                                      np.arange(main_head_inputs.size(0)), :]
                         if prev_head_ind == 4:

@@ -784,6 +784,7 @@ class Display(object):
                 actions, hidden_states = self.policies[players_go].act(
                     curr_obs, self.curr_hidden_states, curr_state, action_masks, initial_settlement=placing_initial_settlement
                 )
+ 
                 self.render_board()
             else:
                 raise NotImplementedError

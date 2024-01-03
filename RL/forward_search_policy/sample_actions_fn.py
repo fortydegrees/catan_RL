@@ -3,8 +3,6 @@ import torch
 import copy
 import random
 
-max_prop_trade_actions = 3
-
 action_type_priorities = {
     1: ["settlement", "city", "move_robber", "steal", "discard"],
     2: ["road"],
@@ -52,9 +50,6 @@ type_to_ind = {
         # ]
 
 def update_action_masks(action, action_masks):
-    # print('ac', action)
-    print('am', len(action_masks[1][0]))
-    print(action[1])
     if action[0] == 0:
         if sum(action_masks[1][0]) > 1:
             action_masks[1][0][action[1]] = 0
@@ -67,6 +62,10 @@ def update_action_masks(action, action_masks):
     elif action[0] == 4:
         if sum(action_masks[4]) > 1:
             action_masks[4][action[4]] = 0
+    #move robber
+    elif action[0] == 8:
+        if sum(action_masks[3]) > 0:
+            action_masks[3][action[3]] = 0
     elif action[0] == 9:
         if sum(action_masks[5][1]) > 0:
             action_masks[5][1][action[5]] = 0
@@ -83,8 +82,17 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
 
     action_masks_torch = copy.copy(action_masks)
 
+
+    #added this fix and it seems to work..
+    #error was a real nasty one with a wrong sized tensor when placing settlement and fucking up the array/tensor size
+    #seems related to act_masks_to_torch which has exceptions for 1, 5, 6.
+    #but if i add it for 1 and 6 it fails to work.. bit concerning as i don't fully understand what's going on, but i figured it'd throw some mad error if it was thinking incorrectly
     for i in range(len(action_masks)):
-        action_masks[i] = action_masks[i].squeeze().cpu().data.numpy()
+        if i == 5:
+            action_masks[i] = action_masks[i].squeeze(-1).cpu().data.numpy()
+        else:
+            action_masks[i] = action_masks[i].squeeze().cpu().data.numpy()
+
 
     type_masks = action_masks[0]
 
@@ -100,10 +108,11 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
     actions_sampled = 0
     trades_proposed = 0
 
-
     if type_masks[0] == 1: #place settlement
+
         actions_available_type["settlement"] = np.sum(action_masks[1][0]) - 1
         effective_actions_available += actions_available_type["settlement"]
+    
         with torch.no_grad():
             _, action, _, next_hs = policy.act(obs, hidden_state, terminal_mask, action_masks_torch, deterministic=False,
                                                           condition_on_action_type=0)
@@ -116,6 +125,7 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
 
         action_masks = update_action_masks(action, action_masks)
         action_masks_torch = policy.act_masks_to_torch(copy.copy(action_masks))
+
 
     if type_masks[1] == 1: #build road
         actions_available_type["road"] = np.sum(action_masks[2]) - 1
@@ -276,6 +286,7 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
         action_masks = update_action_masks(action, action_masks)
         action_masks_torch = policy.act_masks_to_torch(copy.copy(action_masks))
 
+
     if initial_settlement_phase:
         if consider_all_initial_settlements:
             num_actions_to_sample = int(actions_available_type["settlement"])
@@ -290,15 +301,13 @@ def default_sample_actions(obs, hidden_state, action_masks, policy, max_actions,
         ac_type = None
         for j in range(num_priorities):
             avail_types = [ac_type for ac_type in action_type_priorities[j+1] if actions_available_type.get(ac_type, 0) > 0]
-            if trades_proposed >= max_prop_trade_actions and "prop_trade" in avail_types:
-                avail_types.remove("prop_trade")
             if len(avail_types) > 0:
                 ac_type = random.choice(avail_types)
                 actions_available_type[ac_type] -= 1
                 break
         if ac_type is None:
             break #something gone wrong - but just return what we have.
-        print(ac_type)
+
         with torch.no_grad():
             _, policy_action, _, next_hs = policy.act(obs, hidden_state, terminal_mask, action_masks_torch,
                                                       deterministic=False, condition_on_action_type=type_to_ind[ac_type])

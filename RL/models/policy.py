@@ -69,6 +69,7 @@ class SettlersAgentPolicy(nn.Module):
 
     def act(self, obs_dict, hidden_states, nonterminal_masks, action_masks, deterministic=False,
             return_entropy=False, condition_on_action_type=None, log_specific_action_output=False):
+
         custom_inputs = {
             "current_resources": obs_dict["current_resources"],
             #"proposed_trade": obs_dict["proposed_trade"]
