@@ -36,7 +36,6 @@ class MultiActionHeadsGeneralised(nn.Module):
             specific_log_output = []
 
         if condition_on_action_type is not None:
-            print("YO WE HERE")
             type_output = torch.zeros(1, 11, dtype=torch.float32, device=self.dummy_param.device)
             type_output[0, condition_on_action_type] = 1.0
             first_output = torch.tensor([[condition_on_action_type]], dtype=torch.long, device=self.dummy_param.device)
@@ -78,7 +77,7 @@ class MultiActionHeadsGeneralised(nn.Module):
                     else:
                         #prev_head_ind = 0
                         #i = 1
-                        print(i)
+
                         # print(masks)
                         # print(masks[i])
                         # print(masks)
