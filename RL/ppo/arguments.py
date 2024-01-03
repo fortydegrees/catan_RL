@@ -101,7 +101,7 @@ def get_args():
     )
     #default = 25
     parser.add_argument(
-        '--eval-every', type=int, default=25
+        '--eval-every', type=int, default=50
     )
     parser.add_argument(
         '--num-eval-episodes', type=int, default=128
