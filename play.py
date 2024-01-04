@@ -12,7 +12,6 @@ from RL.forward_search_policy.sample_actions_fn import default_sample_actions
 device = "cpu"
 
 if __name__ == "__main__":
-    print("YO WE HERE")
     parser = argparse.ArgumentParser()
     parser.add_argument('--policy1', type=str, default="human")
     parser.add_argument('--policy2', type=str, default="human")

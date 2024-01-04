@@ -10,7 +10,7 @@ N_TILES = 19
 
 class EnvWrapper(object):
     def __init__(self, interactive=False, max_actions_per_turn=None, max_proposed_trades_per_turn = 4,
-                 validate_actions=True, debug_mode=False, win_reward=500, dense_reward=True, policies=None):
+                 validate_actions=True, debug_mode=False, win_reward=500, dense_reward=False, policies=None):
         if max_actions_per_turn is None:
             self.max_actions_per_turn = np.inf
         else:
@@ -105,20 +105,25 @@ class EnvWrapper(object):
             if self.dense_reward:
                                 
                 rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
+                #getting production blocked is bad
                 if action[0] == ActionTypes.RollDice:
-                    rewards[player_id] -= 0.2 * self.game.blocked_production[player_id]
+                    rewards[player_id] -= 0.3 * self.game.blocked_production[player_id]
                 if action[0] == ActionTypes.DiscardResource:
-                    rewards[player_id] -= 0.1
+                    rewards[player_id] -= 0.2
                 if action[0] == ActionTypes.UpgradeToCity:
                     rewards[player_id] += 5
                 if action[0] == ActionTypes.PlaceSettlement:
                     rewards[player_id] += 3
+                #TODO: slight penalty for exchange? worse the earlier in the game? 4:1 worse than 2:1
+                
 
                 rewards[player_id] *= self.reward_annealing_factor
         self.curr_vps = updated_vps
 
         if done:
             if self.winner != -1:
+                print(f"Player {self.winner.id} won in {self.game.turn} turns with {self.game.players[self.winner.id].victory_points} VPs.")
+                #reward more for quicker wins
                 if self.game.turn < 125:
                     rewards[self.winner.id] += self.win_reward * 1.5
                 elif self.game.turn < 200:

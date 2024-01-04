@@ -823,7 +823,7 @@ class Display(object):
             self.initialise_AI()
 
         while run:
-            pygame.time.delay(150)
+            pygame.time.delay(50)
             self.window.wm_withdraw()
             self.screen.fill(self.BACKGROUND_COLOUR)
             self.draw_invisible_edges()
@@ -837,7 +837,8 @@ class Display(object):
             mouse_click = False
             over_corner = False
             over_edge = False
-
+            #TODO: uncomment to autorun
+            self.step_AI()
             if test:
                 players_go = self.get_players_turn()
                 if isinstance(self.policies[players_go], str):
