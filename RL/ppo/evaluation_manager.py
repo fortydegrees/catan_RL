@@ -41,6 +41,7 @@ class EvaluationManager(object):
         done = False
         total_game_steps = 0
         policy_decisions = 0
+        DRAW = False
 
         while done == False:
             with torch.no_grad():
@@ -67,7 +68,14 @@ class EvaluationManager(object):
 
                 total_game_steps += 1
 
-        winner = self.order.index(self.env.winner.id)
+                if total_game_steps > 2500:
+                    DRAW = True
+                    done = True
+
+        if DRAW:
+            winner = -1
+        else:
+            winner = self.order.index(self.env.winner.id)
 
         # print(winner)
 

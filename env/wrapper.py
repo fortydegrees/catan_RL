@@ -20,6 +20,11 @@ class EnvWrapper(object):
         can turn validate actions off to increase speed slightly. But if you send invalid
         actions it will probably fuck everything up.
         """
+        #with validate actions:
+        #Updates complete: 10. Total policy steps: 2000. Number of games complete: 1. Total elapsed time: 0.012477195196681553 hours.
+
+        #without:
+        #Updates complete: 10. Total policy steps: 2000. Number of games complete: 2. Total elapsed time: 0.012500578628646003 hours.
         self.validate_actions = validate_actions
         self.game = Game(interactive=interactive, debug_mode=debug_mode, policies=policies)
 
@@ -97,25 +102,11 @@ class EnvWrapper(object):
             if self.dense_reward:
                                 
                 rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
-                #TODO: add something to reward increasing production
-                    #and to value resource harmony? e.g. all resources? brick/wood 1:1, 
-                #extending road network
-                    #reward for >10 network. even more for 13/14/15
-                #extending army
-
-                #added and changed some of these
-                #TODO: add negative reward if dice rolled and we're blocked?
-                    #teaches that we want to be unblocked
-
+                #add self.game.blocked_production = {PlayerID.Red: 2, PlayerId.Blue: 1}
+                #rewards[player_id] -= 0.3 * self.game.blocked_production[player_id]
                 #tempted to remove this too for similar reasons as below. the rewards from the dev should be the learned behaviour
                 if action[0] == ActionTypes.BuyDevelopmentCard:
                     rewards[player_id] += 2
-                #removed as i don't think you should get a reward simply for playing a development card.
-                #the product of a dev should be its own reward, e.g. YoP for balancing hand, mono for production/hurting other player. knight for unblocking/stealing card
-                # if action[0] == ActionTypes.PlayDevelopmentCard:
-                #     rewards[player_id] += 1
-                # if action[0] == ActionTypes.MoveRobber:
-                #     rewards[player_id] += 0.5
                 if action[0] == ActionTypes.DiscardResource:
                     rewards[player_id] -= 0.2
                 if action[0] == ActionTypes.UpgradeToCity:
@@ -133,12 +124,10 @@ class EnvWrapper(object):
         return done, rewards
 
     def _translate_action(self, action):
-        #print("ACTION", action)
         players_go = self.game.players_go
         translated_action = {}
         action_type = action[0]
         translated_action["type"] = action_type
-        #print(action_type)
 
         if action_type == ActionTypes.PlaceSettlement or action_type == ActionTypes.UpgradeToCity:
             translated_action["corner"] = action[1]

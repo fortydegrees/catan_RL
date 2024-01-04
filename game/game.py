@@ -148,6 +148,9 @@ class Game(object):
 
         for tile in tiles_hit:
             if tile.contains_robber:
+                #TODO: add negative reward here?
+                #add self.game.blocked_production = {PlayerID.Red: 2, PlayerId.Blue: 1}
+                #(then on turn end, set to 0 for both)
                 continue
             for corner_key, corner in tile.corners.items():
                 if corner.building is not None:
@@ -483,45 +486,6 @@ class Game(object):
                     return False, "Not enough of desired resource left in the bank."
             else:
                 return False, "You do not have enough resources for this exchange."
-        # elif action["type"] == ActionTypes.ProposeTrade:
-        #     if self.must_respond_to_trade:
-        #         return False, "Must respond to proposed trade."
-        #     if self.initial_placement_phase:
-        #         return False, "Still in initial placement phase!"
-        #     elif self.dice_rolled_this_turn == False:
-        #         return False, "You cannot trade before rolling the dice."
-        #     elif self.must_use_development_card_ability:
-        #         return False, "You need to play out your development card ability first."
-        #     elif self.just_moved_robber:
-        #         return False, "You've just moved the robber. Choose a player to steal from first."
-        #     proposing_player = action["player_proposing"]
-        #     other_player = action["target_player"]
-        #     if other_player == proposing_player:
-        #         return False, "Cannot trade with yourself."
-        #     proposed_res = action["player_proposing_res"]
-        #     for res in [Resource.Wood, Resource.Brick, Resource.Sheep, Resource.Wheat, Resource.Ore]:
-        #         prop_count = proposed_res.count(res)
-        #         if player.resources[res] >= prop_count:
-        #             continue
-        #         else:
-        #             return False, "You do not have the proposed resources!"
-        #     return True, None
-        # elif action["type"] == ActionTypes.RespondToOffer:
-        #     if self.must_respond_to_trade:
-        #         target_player = self.players[self.proposed_trade["target_player"]]
-        #         if action["response"] == "reject":
-        #             return True, None
-        #         else:
-        #             proposed_res = self.proposed_trade["target_player_res"]
-        #             for res in [Resource.Wood, Resource.Brick, Resource.Sheep, Resource.Wheat, Resource.Ore]:
-        #                 prop_count = proposed_res.count(res)
-        #                 if target_player.resources[res] >= prop_count:
-        #                     continue
-        #                 else:
-        #                     return False, "You do not have enough resources to accept this trade."
-        #             return True, None
-        #     else:
-        #         return False, "No trade to respond to."
 
         elif action["type"] == ActionTypes.RollDice:
             if self.must_respond_to_trade:
@@ -778,61 +742,7 @@ class Game(object):
                                                               self.resource_text[action["trading_resource"]],
                                                               self.resource_text[action["desired_resource"]])
                 }
-        # elif action["type"] == ActionTypes.ProposeTrade:
-        #     self.must_respond_to_trade = True
-        #     self.proposed_trade = action.copy()
-        #     if return_message:
-        #         message = {"player_id": player.id}
-        #         text = "Proposed a deal to {style}{color " + str(self.colours[action["target_player"]]) + \
-        #                     "}Player, {style}{color " + str(self.colours[player.id]) + "}offering "
-        #         for res in self.proposed_trade["player_proposing_res"]:
-        #             text += self.resource_text[res] + ", "
-        #         text = text[:-2]
-        #         text += " for "
-        #         for res in self.proposed_trade["target_player_res"]:
-        #             text += self.resource_text[res] + ", "
-        #         text = text[:-2] + "."
-        #         message["text"] = text
-        #         self.trades_proposed_this_turn += 1
-        # elif action["type"] == ActionTypes.RespondToOffer:
-        #     if action["response"] == "accept":
-        #         trade = self.proposed_trade
-        #         p1 = trade["player_proposing"]
-        #         p2 = trade["target_player"]
-        #         res_p1 = defaultdict(lambda: 0)
-        #         res_p2 = defaultdict(lambda: 0)
-        #         for res in trade["player_proposing_res"]:
-        #             self.players[p1].resources[res] -= 1
-        #             self.players[p1].visible_resources[res] = max(self.players[p1].visible_resources[res] - 1, 0)
-        #             res_p1[res] -= 1
-        #             self.players[p2].resources[res] += 1
-        #             self.players[p2].visible_resources[res] += 1
-        #             res_p2[res] += 1
-        #         for res in trade["target_player_res"]:
-        #             self.players[p1].resources[res] += 1
-        #             self.players[p1].visible_resources[res] += 1
-        #             res_p1[res] += 1
-        #             self.players[p2].resources[res] -= 1
-        #             self.players[p2].visible_resources[res] = max(self.players[p2].visible_resources[res] - 1, 0)
-        #             res_p2[res] -= 1
-        #         self.update_player_resource_estimates(res_p1, p1)
-        #         self.update_player_resource_estimates(res_p2, p2)
-        #     self.must_respond_to_trade = False
-        #     if return_message:
-        #         message = {"player_id": self.proposed_trade["target_player"]}
-        #         if action["response"] == "accept":
-        #             text = "Accepted the deal."
-        #         else:
-        #             text = "Rejected the deal."
-        #         message["text"] = text
-        #         self.proposed_trade = None
-        #     else:
-        #         self.proposed_trade = None
-                
-        #TODO: proper discarding, e.g. not just less than 9.
-                #could add number to players_to_discard array for the number of cards they should be left with (numCardsLeft).
-                #e.g. if they have 10 cards, make it 5. then just do this: if sum(player_discarding.resources.values()) <= 5 (numCardsLeft):
-        #11 cards = discard 5. so round down: 11 / 2 
+        #changed for >9 and for removing 50% rather than to be under 9
         elif action["type"] == ActionTypes.DiscardResource:
             player_discarding = self.players[self.players_to_discard[0]]
             if isinstance(action["resources"], list):
