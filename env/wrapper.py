@@ -10,7 +10,7 @@ N_TILES = 19
 
 class EnvWrapper(object):
     def __init__(self, interactive=False, max_actions_per_turn=None, max_proposed_trades_per_turn = 4,
-                 validate_actions=True, debug_mode=False, win_reward=500, dense_reward=False, policies=None):
+                 validate_actions=True, debug_mode=False, win_reward=500, dense_reward=True, policies=None):
         if max_actions_per_turn is None:
             self.max_actions_per_turn = np.inf
         else:
@@ -122,7 +122,7 @@ class EnvWrapper(object):
 
         if done:
             if self.winner != -1:
-                print(f"Player {self.winner.id} won in {self.game.turn} turns with {self.game.players[self.winner.id].victory_points} VPs.")
+                #print(f"Player {self.winner.id} won in {self.game.turn} turns with {self.game.players[self.winner.id].victory_points} VPs.")
                 #reward more for quicker wins
                 if self.game.turn < 125:
                     rewards[self.winner.id] += self.win_reward * 1.5
