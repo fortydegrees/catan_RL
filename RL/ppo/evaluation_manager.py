@@ -68,14 +68,17 @@ class EvaluationManager(object):
 
                 total_game_steps += 1
 
-                if total_game_steps > 2500:
+                if total_game_steps > 500:
                     DRAW = True
                     done = True
 
         if DRAW:
             winner = -1
         else:
-            winner = self.order.index(self.env.winner.id)
+            if (self.env.winner.id > 0):
+                winner = self.order.index(self.env.winner.id)
+            else:
+                winner = -1
 
         # print(winner)
 

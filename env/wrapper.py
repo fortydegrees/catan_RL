@@ -105,17 +105,14 @@ class EnvWrapper(object):
             if self.dense_reward:
                                 
                 rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
-                #add self.game.blocked_production = {PlayerID.Red: 2, PlayerId.Blue: 1}
                 if action[0] == ActionTypes.RollDice:
                     rewards[player_id] -= 0.2 * self.game.blocked_production[player_id]
-                #tempted to remove this too for similar reasons as below. the rewards from the dev should be the learned behaviour
                 if action[0] == ActionTypes.DiscardResource:
                     rewards[player_id] -= 0.1
                 if action[0] == ActionTypes.UpgradeToCity:
                     rewards[player_id] += 5
                 if action[0] == ActionTypes.PlaceSettlement:
                     rewards[player_id] += 3
-                #TODO: penalty for early exchange?
 
                 rewards[player_id] *= self.reward_annealing_factor
         self.curr_vps = updated_vps
@@ -123,12 +120,14 @@ class EnvWrapper(object):
         if done:
             if self.winner != -1:
                 if self.game.turn < 125:
-                    self.win_reward *= 1.5
+                    rewards[self.winner.id] += self.win_reward * 1.5
                 elif self.game.turn < 200:
-                    self.win_reward *= 1.25
+                    rewards[self.winner.id] += self.win_reward * 1.25
                 elif self.game.turn < 300:
-                    self.win_reward *= 1.1
-                rewards[self.winner.id] += self.win_reward
+                    rewards[self.winner.id] += self.win_reward * 1.1
+                else:
+                    rewards[self.winner.id] += self.win_reward
+                
         #print(rewards)
         return done, rewards
 
