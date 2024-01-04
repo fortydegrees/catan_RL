@@ -93,12 +93,10 @@ class EnvWrapper(object):
         done = False
         rewards = {player: 0 for player in [PlayerId.Red, PlayerId.Blue]}
         if self.game.turn > 500:
-            print("Ending game through draw")
             done = True
             self.winner = -1
         for id, player in self.game.players.items():
             if player.victory_points >= 15:
-                print(f"Someone won in {self.game.turn} turns!")
                 done = True
                 self.winner = player
         updated_vps = {}
@@ -124,10 +122,12 @@ class EnvWrapper(object):
 
         if done:
             if self.winner != -1:
-                if self.game.turn < 200:
+                if self.game.turn < 125:
                     self.win_reward *= 1.5
-                elif self.game.turn < 300:
+                elif self.game.turn < 200:
                     self.win_reward *= 1.25
+                elif self.game.turn < 300:
+                    self.win_reward *= 1.1
                 rewards[self.winner.id] += self.win_reward
         #print(rewards)
         return done, rewards
