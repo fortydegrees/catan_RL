@@ -75,7 +75,7 @@ class EvaluationManager(object):
         if DRAW:
             winner = -1
         else:
-            if (self.env.winner.id > 0):
+            if (self.env.winner > 0):
                 winner = self.order.index(self.env.winner.id)
             else:
                 winner = -1
