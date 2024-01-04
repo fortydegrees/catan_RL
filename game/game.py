@@ -101,6 +101,8 @@ class Game(object):
         self.num_to_discard = {}
         self.has_to_move_robber = False
         self.player_to_move_robber = None
+        self.blocked_production = {PlayerId.Blue: 0,
+            PlayerId.Red: 0,}
 
 
         self.die_1 = None
@@ -150,6 +152,14 @@ class Game(object):
             if tile.contains_robber:
                 #TODO: add negative reward here?
                 #add self.game.blocked_production = {PlayerID.Red: 2, PlayerId.Blue: 1}
+                
+                for corner_key, corner in tile.corners.items():
+                    if corner.building is not None:
+                        if corner.building.type == BuildingType.Settlement:
+                            increment = 1
+                        elif corner.building.type == BuildingType.City:
+                            increment = 2
+                        self.blocked_production[corner.building.owner] += increment
                 #(then on turn end, set to 0 for both)
                 continue
             for corner_key, corner in tile.corners.items():
@@ -168,7 +178,6 @@ class Game(object):
                     self.players[player].resources[resource] += resources_allocated[resource][player]
                     self.resource_bank[resource] -= resources_allocated[resource][player]
                     self.update_player_resource_estimates({resource: resources_allocated[resource][player]}, player)
-
         return roll_value
 
     def can_buy_development_card(self, player):
@@ -618,6 +627,8 @@ class Game(object):
             self.player_to_move_robber = None
             self.dice_rolled_this_turn = False
             self.played_development_card_this_turn = False
+            self.blocked_production = {PlayerId.Blue: 0,
+            PlayerId.Red: 0,}
             self.update_players_go()
             self.turn += 1
             self.development_cards_bought_this_turn = []

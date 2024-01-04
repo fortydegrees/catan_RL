@@ -10,7 +10,7 @@ N_TILES = 19
 
 class EnvWrapper(object):
     def __init__(self, interactive=False, max_actions_per_turn=None, max_proposed_trades_per_turn = 4,
-                 validate_actions=True, debug_mode=False, win_reward=500, dense_reward=False, policies=None):
+                 validate_actions=True, debug_mode=False, win_reward=500, dense_reward=True, policies=None):
         if max_actions_per_turn is None:
             self.max_actions_per_turn = np.inf
         else:
@@ -92,8 +92,13 @@ class EnvWrapper(object):
     def _get_done_and_rewards(self, action):
         done = False
         rewards = {player: 0 for player in [PlayerId.Red, PlayerId.Blue]}
+        if self.game.turn > 500:
+            print("Ending game through draw")
+            done = True
+            self.winner = -1
         for id, player in self.game.players.items():
             if player.victory_points >= 15:
+                print(f"Someone won in {self.game.turn} turns!")
                 done = True
                 self.winner = player
         updated_vps = {}
@@ -103,12 +108,11 @@ class EnvWrapper(object):
                                 
                 rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
                 #add self.game.blocked_production = {PlayerID.Red: 2, PlayerId.Blue: 1}
-                #rewards[player_id] -= 0.3 * self.game.blocked_production[player_id]
+                if action[0] == ActionTypes.RollDice:
+                    rewards[player_id] -= 0.2 * self.game.blocked_production[player_id]
                 #tempted to remove this too for similar reasons as below. the rewards from the dev should be the learned behaviour
-                if action[0] == ActionTypes.BuyDevelopmentCard:
-                    rewards[player_id] += 2
                 if action[0] == ActionTypes.DiscardResource:
-                    rewards[player_id] -= 0.2
+                    rewards[player_id] -= 0.1
                 if action[0] == ActionTypes.UpgradeToCity:
                     rewards[player_id] += 5
                 if action[0] == ActionTypes.PlaceSettlement:
@@ -119,8 +123,13 @@ class EnvWrapper(object):
         self.curr_vps = updated_vps
 
         if done:
-            rewards[self.winner.id] += self.win_reward
-
+            if self.winner != -1:
+                if self.game.turn < 200:
+                    self.win_reward *= 1.5
+                elif self.game.turn < 300:
+                    self.win_reward *= 1.25
+                rewards[self.winner.id] += self.win_reward
+        #print(rewards)
         return done, rewards
 
     def _translate_action(self, action):

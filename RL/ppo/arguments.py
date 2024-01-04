@@ -37,7 +37,7 @@ def get_args():
         '--dense-reward-anneal-start', type=int, default=-1
     )
     parser.add_argument(
-        '--dense-reward-anneal-end', type=int, default=-1
+        '--dense-reward-anneal-end', type=int, default=-500
     )
     parser.add_argument(
         '--value-loss-coef', type=float, default=1.0
