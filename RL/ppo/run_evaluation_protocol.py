@@ -49,8 +49,8 @@ def run_evaluation_protocol(evaluation_manager, central_policy, earlier_policies
         }
 
         opponent_str = "random" if i == 0 else "policy from "+opponent_policy_ids[i]
-        print_str += "{} games against {}. Policy won {}/{}. Avg. game length: {}. Avg num policy decisions: {}. Avg victory points for policy: {}. \n".format(
-            args.num_eval_episodes, opponent_str, int(np.sum(winners == 0)), args.num_eval_episodes,
+        print_str += "{} games against {}. Policy won {}/{} ({} draws). Avg. game length: {}. Avg num policy decisions: {}. Avg victory points for policy: {}. \n".format(
+            args.num_eval_episodes, opponent_str, int(np.sum(winners == 0)), args.num_eval_episodes, int(np.sum(winners == -1)),
             np.mean(game_lengths), np.mean(policy_steps), np.mean(victory_points)
         )
 
