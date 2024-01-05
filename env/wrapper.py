@@ -10,7 +10,7 @@ N_TILES = 19
 
 class EnvWrapper(object):
     def __init__(self, interactive=False, max_actions_per_turn=None, max_proposed_trades_per_turn = 4,
-                 validate_actions=True, debug_mode=False, win_reward=500, dense_reward=False, policies=None):
+                 validate_actions=True, debug_mode=False, win_reward=500, dense_reward=True, policies=None):
         if max_actions_per_turn is None:
             self.max_actions_per_turn = np.inf
         else:
@@ -39,6 +39,11 @@ class EnvWrapper(object):
         return self._get_obs()
 
     def step(self, action):
+        #needed as apply_action changes player
+        curr_player = self.game.players[self.game.players_go].id
+        discarder = None
+        if len(self.game.players_to_discard) > 0:
+            discarder = self.game.players_to_discard[0]
         translated_action = self._translate_action(action)
         if self.validate_actions:
             valid_action, error = self.game.validate_action(translated_action)
@@ -48,7 +53,7 @@ class EnvWrapper(object):
 
         obs = self._get_obs()
 
-        done, reward = self._get_done_and_rewards(action)
+        done, reward = self._get_done_and_rewards(action, curr_player, discarder)
 
         info = {"log": message}
 
@@ -83,7 +88,7 @@ class EnvWrapper(object):
 
         return obs
 
-    def _get_done_and_rewards(self, action):
+    def _get_done_and_rewards(self, action, curr_player, discarder):
         #self.game.players_go.id is the player who is NEXT to go
         #print(f"Turn: {self.game.turn}, {self.game.players[self.game.players_go].id} {ActionTypes(action[0]).name}")
         done = False
@@ -105,26 +110,37 @@ class EnvWrapper(object):
             if self.dense_reward:
                 rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
 
-        #TODO: is this bugged? rewards get added for both players regardless of who's taking the action
+        #print(f"Turn {self.game.turn}. Player: {curr_player}. Action: {ActionTypes(action[0]).name}")
+
         if self.dense_reward:
             #getting production blocked is bad
-            # if action[0] == ActionTypes.RollDice:
-            #     rewards[player_id] -= 0.3 * self.game.blocked_production[player_id]
-            # if action[0] == ActionTypes.DiscardResource:
-                
-            #     rewards[player_id] -= 0.2
-            # if action[0] == ActionTypes.UpgradeToCity:
-            #     print(self.game.players_go)
-            #     print(f"Turn {self.game.turn}: Player {player_id} city")
-            #     print('before', rewards)
-            #     rewards[player_id] += 5
-            #     print('after', rewards)
-            # if action[0] == ActionTypes.PlaceSettlement:
-            #     rewards[player_id] += 3
+            if action[0] == ActionTypes.RollDice:
+                for player_id in self.game.blocked_production:
+                    #print(f"Player {player_id} has {self.game.blocked_production[player_id]} blocked")
+                    rewards[player_id] -= 0.3 * self.game.blocked_production[player_id]
+            #discarding is bad
+            if action[0] == ActionTypes.DiscardResource:
+                if discarder is not None:
+                    #print(f"Player {discarder} is discarding")
+                    rewards[discarder] -= 0.2
 
-            #if action[0] == ActionTypes.ExchangeResource:
-                #print(f"Turn {self.game.turn}: Player {player_id} exchanging")
-            #TODO: slight penalty for exchange? worse the earlier in the game? 4:1 worse than 2:1
+
+            #should we do this, or would it be better to just proxy it with production?
+            # if action[0] == ActionTypes.UpgradeToCity:
+            #     print(f"Player {curr_player} built a city")
+            #     rewards[curr_player] += 5
+            #     print(rewards)
+            # if action[0] == ActionTypes.PlaceSettlement:
+            #     print(f"Player {curr_player} built a settlement")
+            #     rewards[curr_player] += 3
+            #     print(rewards)
+            
+            #TODO: penalise more for earlier in game? more for 4:1 vs 2:1?
+            if action[0] == ActionTypes.ExchangeResource:
+                #print(f"Player {curr_player} exchanging cards")
+                rewards[curr_player] -=0.5
+
+            
             
 
             rewards[player_id] *= self.reward_annealing_factor
@@ -142,8 +158,6 @@ class EnvWrapper(object):
                     rewards[self.winner.id] += self.win_reward * 1.1
                 else:
                     rewards[self.winner.id] += self.win_reward
-                
-        #print(rewards)
         
         return done, rewards
 
