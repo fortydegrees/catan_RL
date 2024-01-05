@@ -838,7 +838,7 @@ class Display(object):
             over_corner = False
             over_edge = False
             #TODO: uncomment to autorun
-            self.step_AI()
+            #self.step_AI()
             if test:
                 players_go = self.get_players_turn()
                 if isinstance(self.policies[players_go], str):

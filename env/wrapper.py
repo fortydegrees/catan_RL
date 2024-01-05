@@ -10,7 +10,7 @@ N_TILES = 19
 
 class EnvWrapper(object):
     def __init__(self, interactive=False, max_actions_per_turn=None, max_proposed_trades_per_turn = 4,
-                 validate_actions=True, debug_mode=False, win_reward=500, dense_reward=True, policies=None):
+                 validate_actions=True, debug_mode=False, win_reward=500, dense_reward=False, policies=None):
         if max_actions_per_turn is None:
             self.max_actions_per_turn = np.inf
         else:
@@ -90,8 +90,10 @@ class EnvWrapper(object):
         return obs
 
     def _get_done_and_rewards(self, action):
+        #print(self.game.players_go)
+        #print(f"Turn: {self.game.turn}, {self.game.players[self.game.players_go].id} {ActionTypes(action[0]).name}")
         done = False
-        rewards = {player: 0 for player in [PlayerId.Red, PlayerId.Blue]}
+        rewards = {player: 0 for player in [PlayerId.Blue, PlayerId.Red]}
         if self.game.turn > 500:
             done = True
             self.winner = -1
@@ -100,24 +102,33 @@ class EnvWrapper(object):
                 done = True
                 self.winner = player
         updated_vps = {}
+        #TODO: is this bugged? rewards get added for both players regardless of who's taking the action
         for player_id in [PlayerId.Blue, PlayerId.Red]:
             updated_vps[player_id] = self.game.players[player_id].victory_points
-            if self.dense_reward:
-                                
-                rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
-                #getting production blocked is bad
-                if action[0] == ActionTypes.RollDice:
-                    rewards[player_id] -= 0.3 * self.game.blocked_production[player_id]
-                if action[0] == ActionTypes.DiscardResource:
-                    rewards[player_id] -= 0.2
-                if action[0] == ActionTypes.UpgradeToCity:
-                    rewards[player_id] += 5
-                if action[0] == ActionTypes.PlaceSettlement:
-                    rewards[player_id] += 3
-                #TODO: slight penalty for exchange? worse the earlier in the game? 4:1 worse than 2:1
+        if self.dense_reward:
+                            
+            rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
+            #getting production blocked is bad
+            if action[0] == ActionTypes.RollDice:
+                rewards[player_id] -= 0.3 * self.game.blocked_production[player_id]
+            if action[0] == ActionTypes.DiscardResource:
                 
+                rewards[player_id] -= 0.2
+            if action[0] == ActionTypes.UpgradeToCity:
+                print(self.game.players_go)
+                print(f"Turn {self.game.turn}: Player {player_id} city")
+                print('before', rewards)
+                rewards[player_id] += 5
+                print('after', rewards)
+            if action[0] == ActionTypes.PlaceSettlement:
+                rewards[player_id] += 3
 
-                rewards[player_id] *= self.reward_annealing_factor
+            #if action[0] == ActionTypes.ExchangeResource:
+                #print(f"Turn {self.game.turn}: Player {player_id} exchanging")
+            #TODO: slight penalty for exchange? worse the earlier in the game? 4:1 worse than 2:1
+            
+
+            rewards[player_id] *= self.reward_annealing_factor
         self.curr_vps = updated_vps
 
         if done:
@@ -134,6 +145,7 @@ class EnvWrapper(object):
                     rewards[self.winner.id] += self.win_reward
                 
         #print(rewards)
+        
         return done, rewards
 
     def _translate_action(self, action):

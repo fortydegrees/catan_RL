@@ -181,8 +181,9 @@ class Game(object):
         return roll_value
 
     def can_buy_development_card(self, player):
+        #TODO: add check if bank has enough devs left?
         if player.resources[Resource.Wheat] > 0 and player.resources[Resource.Sheep] > 0 and \
-                player.resources[Resource.Ore] > 0:
+                player.resources[Resource.Ore] > 0 and len(self.development_cards_pile) > 0:
             return True
         else:
             return False
