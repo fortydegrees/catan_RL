@@ -65,15 +65,9 @@ class EnvWrapper(object):
             player = self.game.players[self.game.players_go]
 
         obs = {
-            #"proposed_trade": np.zeros((12,)),
             "current_resources": np.zeros((6,)),
             "player_id": player.id
         }
-        if self.game.proposed_trade is not None:
-            for res in self.game.proposed_trade["player_proposing_res"]:
-                obs["proposed_trade"][res] = 1.0
-            for res in self.game.proposed_trade["target_player_res"]:
-                obs["proposed_trade"][res + 5] = 1.0
         for res in [Resource.Brick, Resource.Wood, Resource.Ore, Resource.Sheep, Resource.Wheat]:
             obs["current_resources"][res] = self.game.players[player.id].resources[res]
 
@@ -90,10 +84,12 @@ class EnvWrapper(object):
         return obs
 
     def _get_done_and_rewards(self, action):
-        #print(self.game.players_go)
+        #self.game.players_go.id is the player who is NEXT to go
         #print(f"Turn: {self.game.turn}, {self.game.players[self.game.players_go].id} {ActionTypes(action[0]).name}")
         done = False
         rewards = {player: 0 for player in [PlayerId.Blue, PlayerId.Red]}
+        #end the game as a draw if it's been over 500 turns
+        #no reward
         if self.game.turn > 500:
             done = True
             self.winner = -1
@@ -102,26 +98,29 @@ class EnvWrapper(object):
                 done = True
                 self.winner = player
         updated_vps = {}
-        #TODO: is this bugged? rewards get added for both players regardless of who's taking the action
+
+        #makes sense to loop players as road/army could be won/lost in the middle of a turn affecting both players' VPs
         for player_id in [PlayerId.Blue, PlayerId.Red]:
             updated_vps[player_id] = self.game.players[player_id].victory_points
+            if self.dense_reward:
+                rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
+
+        #TODO: is this bugged? rewards get added for both players regardless of who's taking the action
         if self.dense_reward:
-                            
-            rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
             #getting production blocked is bad
-            if action[0] == ActionTypes.RollDice:
-                rewards[player_id] -= 0.3 * self.game.blocked_production[player_id]
-            if action[0] == ActionTypes.DiscardResource:
+            # if action[0] == ActionTypes.RollDice:
+            #     rewards[player_id] -= 0.3 * self.game.blocked_production[player_id]
+            # if action[0] == ActionTypes.DiscardResource:
                 
-                rewards[player_id] -= 0.2
-            if action[0] == ActionTypes.UpgradeToCity:
-                print(self.game.players_go)
-                print(f"Turn {self.game.turn}: Player {player_id} city")
-                print('before', rewards)
-                rewards[player_id] += 5
-                print('after', rewards)
-            if action[0] == ActionTypes.PlaceSettlement:
-                rewards[player_id] += 3
+            #     rewards[player_id] -= 0.2
+            # if action[0] == ActionTypes.UpgradeToCity:
+            #     print(self.game.players_go)
+            #     print(f"Turn {self.game.turn}: Player {player_id} city")
+            #     print('before', rewards)
+            #     rewards[player_id] += 5
+            #     print('after', rewards)
+            # if action[0] == ActionTypes.PlaceSettlement:
+            #     rewards[player_id] += 3
 
             #if action[0] == ActionTypes.ExchangeResource:
                 #print(f"Turn {self.game.turn}: Player {player_id} exchanging")
@@ -355,6 +354,8 @@ class EnvWrapper(object):
                     valid_corners[i] = 1.0
         return valid_corners
 
+    #TODO: bug that if we have >2 VPs and opponent has 2, we block oursleves
+    #other and curr_player are correct
     def _get_valid_robber_locations(self):
         valid_tiles = np.zeros((N_TILES,))
         curr_player = self.game.players_go
@@ -365,6 +366,8 @@ class EnvWrapper(object):
                 break
         opponent_vps = self.game.players[other_player].victory_points
         curr_player_vps = self.game.players[curr_player].victory_points
+
+
 
         for i, tile in enumerate(self.game.board.tiles):
             #added friendly robber

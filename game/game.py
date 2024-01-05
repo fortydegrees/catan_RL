@@ -150,8 +150,6 @@ class Game(object):
 
         for tile in tiles_hit:
             if tile.contains_robber:
-                #TODO: add negative reward here?
-                #add self.game.blocked_production = {PlayerID.Red: 2, PlayerId.Blue: 1}
                 
                 for corner_key, corner in tile.corners.items():
                     if corner.building is not None:
