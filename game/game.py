@@ -215,6 +215,7 @@ class Game(object):
         self.building_bank["settlements"][player.id] -= 1
         player.buildings[corner.id] = BuildingType.Settlement
         player.victory_points += 1
+        player.real_victory_points += 1
 
     def can_buy_road(self, player):
         if self.initial_placement_phase:
@@ -253,6 +254,7 @@ class Game(object):
         self.resource_bank[Resource.Ore] += 3
         self.board.insert_city(player.id, corner)
         player.victory_points += 1
+        player.real_victory_points += 1
         self.building_bank["cities"][player.id] -= 1
         self.building_bank["settlements"][player.id] += 1
         player.buildings[corner.id] = BuildingType.City
@@ -451,6 +453,8 @@ class Game(object):
                         return False, "Cannot play a card the same turn as it was bought."
                 if action["card"] == DevelopmentCard.YearOfPlenty:
                     return True, None
+                elif action["card"] == DevelopmentCard.VictoryPoint:
+                    return False, "You can't play a VP"
                 elif action["card"] == DevelopmentCard.Monopoly:
                     if "resource" not in action:
                         return False, "Must select which resource to steal."
@@ -677,7 +681,9 @@ class Game(object):
             player.visible_cards.append(action["card"])
             self.played_development_card_this_turn = True
             if action["card"] == DevelopmentCard.VictoryPoint:
+                print("THIS SHOULD NEVER HIT. PLAYER HAS PLAYED A VP")
                 player.victory_points += 1
+                player.real_victory_points += 1
                 card_type_text = "Victory Point card."
             elif action["card"] == DevelopmentCard.Knight:
                 self.can_move_robber = True
@@ -726,7 +732,10 @@ class Game(object):
             self.update_player_resource_estimates(
                 {Resource.Sheep: -1, Resource.Ore: -1, Resource.Wheat: -1}, player.id
             )
-            player.hidden_cards.append(self.development_cards_pile.pop())
+            card = self.development_cards_pile.pop()
+            player.hidden_cards.append(card)
+            if (card == DevelopmentCard.VictoryPoint):
+                player.real_victory_points += 1
             self.development_cards_bought_this_turn.append(copy.copy(player.hidden_cards[-1]))
             if return_message:
                 message = {"player_id": player.id, "text": "Bought a development card."}
@@ -805,14 +814,17 @@ class Game(object):
             if self.largest_army is None:
                 self.largest_army = largest_army_update
                 self.players[count_player].victory_points += 2
+                self.players[count_player].real_victory_points += 2
             else:
                 if self.largest_army["player"] == count_player:
                     self.largest_army = largest_army_update
                 else:
                     if max_count > self.largest_army["count"]:
                         self.players[self.largest_army["player"]].victory_points -= 2
+                        self.players[self.largest_army["player"]].real_victory_points -= 2
                         self.largest_army = largest_army_update
                         self.players[count_player].victory_points += 2
+                        self.players[count_player].real_victory_points -= 2
 
     def get_longest_path(self, player_id):
         player_edges = []
@@ -849,6 +861,7 @@ class Game(object):
             if max_path_len >= 5:
                 self.longest_road = longest_road_update
                 self.players[player_id].victory_points += 2
+                self.players[player_id].real_victory_points += 2
             return
 
         if self.longest_road["player"] == player_id:
@@ -874,22 +887,28 @@ class Game(object):
                         else:
                             self.longest_road = None
                             self.players[player_id].victory_points -= 2
+                            self.players[player_id].real_victory_points -= 2
                     else:
                         self.longest_road = {
                             "player": player,
                             "count": max_p_len
                         }
                         self.players[player].victory_points += 2
+                        self.players[player].real_victory_points += 2
                         self.players[player_id].victory_points -= 2
+                        self.players[player_id].real_victory_points -= 2
                 else:
                     self.longest_road = None
                     self.players[player_id].victory_points -= 2
+                    self.players[player_id].real_victory_points -= 2
             else:
                 self.longest_road = longest_road_update
         else:
             if max_path_len > self.longest_road["count"]:
                 self.players[self.longest_road["player"]].victory_points -= 2
+                self.players[self.longest_road["player"]].real_victory_points -= 2
                 self.players[player_id].victory_points += 2
+                self.players[player_id].real_victory_points += 2
                 self.longest_road = longest_road_update
 
     def update_player_resource_estimates(self, resources, player_updating, player_who_stole = None):
@@ -1027,7 +1046,8 @@ class Game(object):
                  "longest_road": player.longest_road,
                  "hidden_cards": copy.copy(player.hidden_cards),
                  "visible_cards": copy.copy(player.visible_cards),
-                 "victory_points": player.victory_points
+                 "victory_points": player.victory_points,
+                 "real_victory_points": player.real_victory_points
             }
 
         state["players_go"] = self.players_go
@@ -1143,6 +1163,7 @@ class Game(object):
             self.players[key].hidden_cards = player_state["hidden_cards"]
             self.players[key].visible_cards = player_state["visible_cards"]
             self.players[key].victory_points = player_state["victory_points"]
+            self.players[key].real_victory_points = player_state["real_victory_points"]
             for info in player_state["harbour_info"]:
                 key_res = info[0]; id = info[1]
                 for harbour in self.board.harbours:

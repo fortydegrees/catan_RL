@@ -54,3 +54,4 @@ class Player(object):
         #                                        DevelopmentCard.RoadBuilding, DevelopmentCard.VictoryPoint]) for _ in range(n_visible_cards)]
 
         self.victory_points = 0
+        self.real_victory_points = 0

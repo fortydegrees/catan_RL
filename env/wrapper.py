@@ -98,7 +98,7 @@ class EnvWrapper(object):
             done = True
             self.winner = -1
         for id, player in self.game.players.items():
-            if player.victory_points >= 15:
+            if player.real_victory_points >= 15:
                 done = True
                 self.winner = player
         updated_vps = {}
@@ -486,7 +486,9 @@ class EnvWrapper(object):
             card_count = player.hidden_cards.count(card)
             if card_count > 0:
                 if self.game.development_cards_bought_this_turn.count(card) < card_count:
-                    if card == DevelopmentCard.YearOfPlenty:
+                    if card == DevelopmentCard.VictoryPoint:
+                        valid_development_cards[card] = 0.0
+                    elif card == DevelopmentCard.YearOfPlenty:
                         bank_resources = sum(self.game.resource_bank.values())
                         if bank_resources > 0:
                             valid_development_cards[card] = 1.0
@@ -657,6 +659,8 @@ class EnvWrapper(object):
         else:
             resources = []
 
+        #TODO: does this need changing nw we have higher discard limit?
+            #i think it's just like res_count[7] = 1.0 means 'player has >= 11 of this resource
         for res in [Resource.Wood, Resource.Brick, Resource.Wheat, Resource.Ore, Resource.Sheep]:
             if target_player_id == "current":
                 res_count = np.zeros((8,))
@@ -696,7 +700,11 @@ class EnvWrapper(object):
 
         """victory points"""
         victory_points = np.zeros((15,))
-        vps = target_player.victory_points
+        if target_player_id == "current":
+            #get real vps
+            vps = target_player.real_victory_points
+        else:
+            vps = target_player.victory_points
         if vps < 15:
             victory_points[vps] = 1.0
         else:

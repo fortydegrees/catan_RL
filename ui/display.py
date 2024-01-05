@@ -536,7 +536,10 @@ class Display(object):
         self.screen.blit(self.top_menu, (0,0))
         vps = player.victory_points
         vp_text = self.top_menu_font.render(str(int(vps)), False, (0,0,0))
-        self.screen.blit(vp_text, (267, 109))
+        self.screen.blit(vp_text, (242, 109))
+        rvps = player.real_victory_points
+        rvp_text = self.top_menu_font.render("(" + str(int(rvps)) + ")", False, (0,0,0))
+        self.screen.blit(rvp_text, (272, 109))
 
         wood_text = self.top_menu_font.render(str(int(player.resources[Resource.Wood])), False, (0,0,0))
         self.screen.blit(wood_text, (445,109))
@@ -837,7 +840,13 @@ class Display(object):
             mouse_click = False
             over_corner = False
             over_edge = False
+            
             #TODO: uncomment to autorun
+            players_go = self.get_players_turn()
+            if isinstance(self.policies[players_go], str):
+                pass
+            else:
+                self.step_AI()
             #self.step_AI()
             if test:
                 players_go = self.get_players_turn()
