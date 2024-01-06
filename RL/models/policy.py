@@ -82,7 +82,7 @@ class SettlersAgentPolicy(nn.Module):
             deterministic=deterministic, condition_on_action_type=condition_on_action_type,
             log_specific_head_probs=log_specific_action_output
         )
-
+        #print(value, actions, action_log_probs)
         if log_specific_action_output:
             return value, actions, action_log_probs, hidden_states, entropy, log_output
         else:

@@ -842,12 +842,11 @@ class Display(object):
             over_edge = False
             
             #TODO: uncomment to autorun
-            # players_go = self.get_players_turn()
-            # if isinstance(self.policies[players_go], str):
-            #     pass
-            # else:
-            #     self.step_AI()
-            #self.step_AI()
+            players_go = self.get_players_turn()
+            if isinstance(self.policies[players_go], str):
+                pass
+            else:
+                self.step_AI()
             if test:
                 players_go = self.get_players_turn()
                 if isinstance(self.policies[players_go], str):

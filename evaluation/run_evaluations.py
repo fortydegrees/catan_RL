@@ -1,4 +1,3 @@
-import joblib
 import numpy as np
 import time
 import os
@@ -9,16 +8,16 @@ from evaluation.evaluation_manager import make_evaluation_manager
 from evaluation.vec_evaluation import SubProcEvaluationManager
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--evaluate-every-nth-policy', type=int, default=4)
-parser.add_argument('--evaluation-games-per-policy', type=int, default=320)
+parser.add_argument('--evaluate-every-nth-policy', type=int, default=1)
+parser.add_argument('--evaluation-games-per-policy', type=int, default=64)
 parser.add_argument('--evaluation-type', type=str, default="previous_policies",
                     choices=["previous_policies", "random"])
-parser.add_argument('--previous-shift', type=int, default=5)
+parser.add_argument('--previous-shift', type=int, default=1)
 
 args = parser.parse_args()
 
-NUM_PROCESSES = 32
-DETAILED_LOGS = False
+NUM_PROCESSES = 8
+DETAILED_LOGS = True
 
 if __name__ == "__main__":
     policy_files = os.listdir("../RL/results/")
@@ -32,7 +31,11 @@ if __name__ == "__main__":
         first_id_idx = 0
 
     policy_id_idxs = np.arange(first_id_idx, len(policy_file_ids), args.evaluate_every_nth_policy)
-    policies_to_evaluate_ids = policy_file_ids[first_id_idx::args.evaluate_every_nth_policy]
+    #policies_to_evaluate_ids = policy_file_ids[first_id_idx::args.evaluate_every_nth_policy]
+    policies_to_evaluate_ids = policy_file_ids
+
+
+
 
     results = {}
 
@@ -46,8 +49,9 @@ if __name__ == "__main__":
         t1 = time.time()
 
         if args.evaluation_type == "previous_policies":
+            print(policy_file_ids, policy_id_idxs, i)
             prev_policy_id = policy_file_ids[policy_id_idxs[i] - args.previous_shift]
-            opponent_policy_ids = [prev_policy_id, prev_policy_id, prev_policy_id]
+            opponent_policy_ids = [prev_policy_id]
         elif args.evaluation_type == "random":
             opponent_policy_ids = None
         else:
@@ -58,6 +62,7 @@ if __name__ == "__main__":
             player_id, opponent_policy_ids
         )
         res = list(zip(*res))
+
 
         action_types = defaultdict(lambda: 0)
 
@@ -126,4 +131,4 @@ if __name__ == "__main__":
         print(sorted(type_prob_dict.items()))
         print("\n")
 
-        joblib.dump(results, "evaluation_results.pt")
+        #joblib.dump(results, "evaluation_results.pt")

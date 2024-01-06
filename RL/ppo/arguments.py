@@ -27,17 +27,18 @@ def get_args():
     parser.add_argument(
         '--entropy-coef-final', type=float, default=0.005
     )
+    #scaled by 5
     parser.add_argument(
-        '--entropy-coef-start-anneal', type=int, default=500
+        '--entropy-coef-start-anneal', type=int, default=1000
     )
     parser.add_argument(
-        '--entropy-coef-end-anneal', type=int, default=1500
+        '--entropy-coef-end-anneal', type=int, default=3000
     )
     parser.add_argument(
-        '--dense-reward-anneal-start', type=int, default=-1
+        '--dense-reward-anneal-start', type=int, default=1
     )
     parser.add_argument(
-        '--dense-reward-anneal-end', type=int, default=-500
+        '--dense-reward-anneal-end', type=int, default=1000
     )
     parser.add_argument(
         '--value-loss-coef', type=float, default=1.0
@@ -93,11 +94,13 @@ def get_args():
     parser.add_argument(
         '--num-policies-to-store', type=int, default=500
     )
+    #changed to scale
     parser.add_argument(
-        '--add-policy-every', type=int, default=4, help='add new policy every this many updates'
+        '--add-policy-every', type=int, default=8, help='add new policy every this many updates'
     )
+    #changed to scale
     parser.add_argument(
-        '--update-opponent-policies-every', type=int, default=1
+        '--update-opponent-policies-every', type=int, default=2
     )
     #default = 25
     parser.add_argument(

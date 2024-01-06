@@ -89,13 +89,15 @@ class EnvWrapper(object):
         return obs
 
     def _get_done_and_rewards(self, action, curr_player, discarder):
-        #self.game.players_go.id is the player who is NEXT to go
-        #print(f"Turn: {self.game.turn}, {self.game.players[self.game.players_go].id} {ActionTypes(action[0]).name}")
+        #print(f"Turn {self.game.turn}. Player: {curr_player}. Action: {ActionTypes(action[0]).name}")
         done = False
         rewards = {player: 0 for player in [PlayerId.Blue, PlayerId.Red]}
-        #end the game as a draw if it's been over 500 turns
-        #no reward
-        if self.game.turn > 500:
+
+        #end the game as a draw (and no win reward) if it's been over 500 turns.
+        #not sure if this is a good thing to include. might optimise for high risk strategies?
+        #or might bias early training (e.g. go for road)
+        #have changed from 500 to 2000 to basically end stalemates
+        if self.game.turn > 2000:
             done = True
             self.winner = -1
         for id, player in self.game.players.items():
@@ -110,7 +112,7 @@ class EnvWrapper(object):
             if self.dense_reward:
                 rewards[player_id] += 5 * (updated_vps[player_id] - self.curr_vps[player_id])
 
-        #print(f"Turn {self.game.turn}. Player: {curr_player}. Action: {ActionTypes(action[0]).name}")
+
 
         if self.dense_reward:
             #getting production blocked is bad
@@ -123,7 +125,6 @@ class EnvWrapper(object):
                 if discarder is not None:
                     #print(f"Player {discarder} is discarding")
                     rewards[discarder] -= 0.2
-
 
             #should we do this, or would it be better to just proxy it with production?
             # if action[0] == ActionTypes.UpgradeToCity:
@@ -139,9 +140,6 @@ class EnvWrapper(object):
             if action[0] == ActionTypes.ExchangeResource:
                 #print(f"Player {curr_player} exchanging cards")
                 rewards[curr_player] -=0.5
-
-            
-            
 
             rewards[player_id] *= self.reward_annealing_factor
         self.curr_vps = updated_vps
@@ -205,15 +203,6 @@ class EnvWrapper(object):
             translated_action["exchange_rate"] = self._get_best_exchange_rate(exchange_res, self.game.players[players_go])
             translated_action["desired_resource"] = desired_res
             translated_action["trading_resource"] = exchange_res
-        #elif action_type == ActionTypes.ProposeTrade:
-            #translated_action = self._parse_trade(action, translated_action, self.game.players[players_go])
-        # elif action_type == ActionTypes.RespondToOffer:
-        #     if action[5] == 0:
-        #         translated_action["response"] = "accept"
-        #     elif action[5] == 1:
-        #         translated_action["response"] = "reject"
-        #     else:
-        #         raise ValueError
         elif action_type == ActionTypes.DiscardResource:
             translated_action["resources"] = [self._head_out_to_res(action[8])]
 

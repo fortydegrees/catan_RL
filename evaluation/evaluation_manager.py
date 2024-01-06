@@ -124,7 +124,10 @@ class EvaluationManager(object):
         if DRAW:
             winner = -1
         else:
-            winner = self.order.index(self.env.winner.id)
+            if (self.env.winner == -1):
+                winner = -1
+            else:
+                winner = self.order.index(self.env.winner.id)
 
         victory_points = self.env.curr_vps[self.order[0]]
 

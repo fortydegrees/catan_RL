@@ -685,6 +685,9 @@ class Game(object):
                 card_type_text = "Victory Point card."
             elif action["card"] == DevelopmentCard.Knight:
                 self.can_move_robber = True
+                #test add:
+                self.has_to_move_robber = True
+                self.player_to_move_robber = player.id
                 self.update_largest_army()
                 card_type_text = "Knight card."
             elif action["card"] == DevelopmentCard.RoadBuilding:

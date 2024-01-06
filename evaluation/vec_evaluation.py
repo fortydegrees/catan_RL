@@ -28,7 +28,7 @@ def _worker(
                     file_name = base_file_name + str(id) + ".pt"
                     state_dict = torch.load(file_name, map_location="cpu")
                     policy_state_dicts[id] = state_dict
-
+                
                 evaluation_manager.detailed_logging = detailed_logging
                 remote.send(True)
             elif cmd == "run_eval_episodes":
