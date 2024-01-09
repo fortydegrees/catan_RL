@@ -8,11 +8,11 @@ from evaluation.evaluation_manager import make_evaluation_manager
 from evaluation.vec_evaluation import SubProcEvaluationManager
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--evaluate-every-nth-policy', type=int, default=1)
+parser.add_argument('--evaluate-every-nth-policy', type=int, default=2)
 parser.add_argument('--evaluation-games-per-policy', type=int, default=64)
 parser.add_argument('--evaluation-type', type=str, default="previous_policies",
                     choices=["previous_policies", "random"])
-parser.add_argument('--previous-shift', type=int, default=1)
+parser.add_argument('--previous-shift', type=int, default=2)
 
 args = parser.parse_args()
 
@@ -34,7 +34,9 @@ if __name__ == "__main__":
     #policies_to_evaluate_ids = policy_file_ids[first_id_idx::args.evaluate_every_nth_policy]
     policies_to_evaluate_ids = policy_file_ids
 
-
+    # print(policy_file_ids)
+    # print(policies_to_evaluate_ids)
+    # print(policy_id_idxs)
 
 
     results = {}
@@ -49,7 +51,7 @@ if __name__ == "__main__":
         t1 = time.time()
 
         if args.evaluation_type == "previous_policies":
-            print(policy_file_ids, policy_id_idxs, i)
+            #print(policy_file_ids, policy_id_idxs, i)
             prev_policy_id = policy_file_ids[policy_id_idxs[i] - args.previous_shift]
             opponent_policy_ids = [prev_policy_id]
         elif args.evaluation_type == "random":
@@ -57,6 +59,7 @@ if __name__ == "__main__":
         else:
             raise NotImplementedError
 
+        print(player_id, opponent_policy_ids)
         res = evaluation_manager.run_evaluation_episodes(
             args.evaluation_games_per_policy // NUM_PROCESSES,
             player_id, opponent_policy_ids

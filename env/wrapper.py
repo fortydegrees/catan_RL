@@ -140,22 +140,23 @@ class EnvWrapper(object):
             if action[0] == ActionTypes.ExchangeResource:
                 #print(f"Player {curr_player} exchanging cards")
                 rewards[curr_player] -=0.5
-
-            rewards[player_id] *= self.reward_annealing_factor
+                
+            for player_id in [PlayerId.Blue, PlayerId.Red]:
+                rewards[player_id] *= self.reward_annealing_factor
         self.curr_vps = updated_vps
 
         if done:
             if self.winner != -1:
                 #print(f"Player {self.winner.id} won in {self.game.turn} turns with {self.game.players[self.winner.id].victory_points} VPs.")
                 #reward more for quicker wins
-                if self.game.turn < 125:
-                    rewards[self.winner.id] += self.win_reward * 1.5
-                elif self.game.turn < 200:
-                    rewards[self.winner.id] += self.win_reward * 1.25
-                elif self.game.turn < 300:
-                    rewards[self.winner.id] += self.win_reward * 1.1
-                else:
-                    rewards[self.winner.id] += self.win_reward
+                # if self.game.turn < 125:
+                #     rewards[self.winner.id] += self.win_reward * 1.5
+                # elif self.game.turn < 200:
+                #     rewards[self.winner.id] += self.win_reward * 1.25
+                # elif self.game.turn < 300:
+                #     rewards[self.winner.id] += self.win_reward * 1.1
+                # else:
+                rewards[self.winner.id] += self.win_reward
         
         return done, rewards
 
